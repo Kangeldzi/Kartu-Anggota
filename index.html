@@ -297,35 +297,76 @@ body{
 <script>
 // =================== CONFIGURATION ===================
 const CONFIG = {
-  // GOOGLE SHEETS ID ANDA
-  GOOGLE_SHEET_ID: '1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU',
+  // PAKAI METODE SEDERHANA - LANGSUNG AMBIL 1 DATA SAJA
+  USE_SIMPLE_API: true,
   
-  // Default ID jika tidak ada parameter URL
-  DEFAULT_ID: 'NIA-001',
-  
-  // Interval auto-refresh (milidetik)
-  REFRESH_INTERVAL: 30000, // 30 detik
-  
-  // Foto default jika tidak ada foto di Google Sheets
-  DEFAULT_PHOTO: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg',
-  
-  // Fallback data jika Google Sheets error
-  FALLBACK_DATA: {
+  // Data langsung (ganti dengan data Eldi asli)
+  DIRECT_DATA: {
     'NIA-001': {
-      nama: 'ELDI SUGIANTO, S.Kom',
       id: 'NIA-001',
+      nama: 'ELDI SUGIANTO, S.Kom',
+      email: 'eldzi4212@gmail.com',
       status: 'AKTIF',
       posisi: 'Anggota',
-      simpanan_pokok: 200000,
-      simpanan_wajib: 0,
-      simpanan_sukarela: 0,
-      email: 'eldzi4212@gmail.com',
-      whatsapp: '085218483129',
-      alamat: 'Data sedang dimuat...',
+      alamat: 'Jl. Contoh No. 123, Bogor',
+      whatsapp: '08123456789',
+      jenis_kelamin: 'Laki-laki',
+      agama: 'Islam',
+      nik: '3201171212810011',
+      tanggal_bergabung: '2023-01-15',
+      simpanan_pokok: 500000,
+      simpanan_wajib: 100000,
+      simpanan_sukarela: 250000,
+      total_pinjaman: 0,
+      shu_estimasi: 75000,
       foto: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg'
     }
-  }
+  },
+  
+  DEFAULT_ID: 'NIA-001',
+  REFRESH_INTERVAL: 60000
 };
+
+// Di fungsi loadMemberData, ganti dengan:
+async function loadMemberData() {
+  currentMemberId = getParameterByName('id') || CONFIG.DEFAULT_ID;
+  
+  // Loading cepat dengan data langsung
+  document.getElementById('loadingId').textContent = `ID: ${currentMemberId}`;
+  document.getElementById('loading').style.display = 'block';
+  
+  // Simulasi loading 1 detik
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  const memberData = CONFIG.DIRECT_DATA[currentMemberId] || {
+    nama: `Anggota ${currentMemberId}`,
+    id: currentMemberId,
+    status: 'AKTIF',
+    posisi: 'Anggota',
+    simpanan_pokok: 0,
+    simpanan_wajib: 0,
+    simpanan_sukarela: 0,
+    foto: CONFIG.DEFAULT_PHOTO
+  };
+  
+  updateUI(memberData);
+  
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+  
+  // Coba load dari Google Sheets di background
+  setTimeout(async () => {
+    try {
+      const sheetData = await loadFromGoogleSheets();
+      if (sheetData && sheetData[currentMemberId]) {
+        updateUI(sheetData[currentMemberId]);
+        showToast('Data diperbarui dari Google Sheets');
+      }
+    } catch (error) {
+      console.log('Background sync failed:', error.message);
+    }
+  }, 2000);
+}
 
 // =================== GLOBAL VARIABLES ===================
 let currentMemberId = CONFIG.DEFAULT_ID;
