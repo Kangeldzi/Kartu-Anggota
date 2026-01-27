@@ -2,7 +2,7 @@
   "NIA-001": {
     "id": "NIA-001",
     "nama": "ELDI SUGIANTO, S.Kom",
-    "foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg",
+    "foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg",
     "email": "eldzi4212@gmail.com",
     "status": "AKTIF",
     "posisi": "Anggota",
@@ -16,12 +16,12 @@
     "simpanan_wajib": 100000,
     "simpanan_sukarela": 250000,
     "total_pinjaman": 0,
-    "shu_estimasi": 75000,
-    "foto": ""
+    "shu_estimasi": 75000
   },
   "NIA-002": {
     "id": "NIA-002",
     "nama": "SITI RAHAYU",
+    "foto": "https://ui-avatars.com/api/?name=Siti+Rahayu&background=1a237e&color=fff&size=200",
     "email": "siti@email.com",
     "status": "AKTIF",
     "posisi": "Anggota",
@@ -35,8 +35,7 @@
     "simpanan_wajib": 100000,
     "simpanan_sukarela": 150000,
     "total_pinjaman": 2000000,
-    "shu_estimasi": 60000,
-    "foto": "https://ui-avatars.com/api/?name=Siti+Rahayu&background=1a5337&color=fff&size=200"
+    "shu_estimasi": 60000
   },
   "NIA-003": {
     "id": "NIA-003",
