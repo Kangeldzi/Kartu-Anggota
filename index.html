@@ -526,49 +526,40 @@ function parseGoogleSheetsData(jsonData) {
 }
 
 async function loadMemberData() {
-  try {
-    // 1. Ambil ID dari URL atau pakai default
-    currentMemberId = getParameterByName('id') || CONFIG.DEFAULT_ID;
-    
-    // 2. Update loading display
-    document.getElementById('loadingId').textContent = `ID: ${currentMemberId}`;
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('content').style.display = 'none';
-    hideError();
-    
-    // 3. Load data dari Google Sheets
-    let allMembersData = {};
-    
-    try {
-      allMembersData = await loadDataFromGoogleSheets();
-    } catch (sheetsError) {
-      console.warn('Google Sheets error, using fallback:', sheetsError);
-      allMembersData = CONFIG.FALLBACK_DATA;
-      showError('Menggunakan data offline (Google Sheets tidak dapat diakses)');
-    }
-    
-    // 4. Cari data anggota
-    const memberData = allMembersData[currentMemberId];
-    
-    if (memberData) {
-      updateUI(memberData);
-      hideError();
-    } else {
-      showError(`Anggota dengan ID "${currentMemberId}" tidak ditemukan`);
-      useFallbackData();
-    }
-    
-  } catch (error) {
-    console.error('Error loading member data:', error);
-    showError(`Error: ${error.message}`);
-    useFallbackData();
-  } finally {
-    // 5. Tampilkan konten
-    setTimeout(() => {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-    }, 500);
-  }
+async function loadMemberData() {
+  currentMemberId = getParameterByName('id') || CONFIG.DEFAULT_ID;
+  
+  // Tampilkan loading hanya 0.5 detik
+  document.getElementById('loading').style.display = 'block';
+  
+  // Data langsung untuk Eldi
+  const memberData = {
+    id: currentMemberId,
+    nama: currentMemberId === 'NIA-001' ? 'ELDI SUGIANTO, S.Kom' : `Anggota ${currentMemberId}`,
+    email: currentMemberId === 'NIA-001' ? 'eldzi4212@gmail.com' : '',
+    status: 'AKTIF',
+    posisi: 'Anggota',
+    simpanan_pokok: 500000,
+    simpanan_wajib: 100000,
+    simpanan_sukarela: 250000,
+    total_pinjaman: 0,
+    shu_estimasi: 75000,
+    alamat: 'Data sedang disinkronisasi...',
+    whatsapp: '08123456789',
+    foto: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg'
+  };
+  
+  // Update UI segera
+  updateUI(memberData);
+  
+  // Sembunyikan loading setelah 0.5 detik
+  setTimeout(() => {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }, 500);
+  
+  // Coba ambil dari Google Sheets di background
+  setTimeout(tryLoadFromSheets, 1000);
 }
 
 function useFallbackData() {
