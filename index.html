@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* [SAMA PERSIS DENGAN CSS ANDA YANG SEBELUMNYA] */
+/* [SAMA PERSIS DENGAN CSS ANDA] */
 body{
   margin:0;
   background:linear-gradient(180deg,#061b12,#020b07);
@@ -113,7 +113,7 @@ body{
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  gridTemplateColumns:repeat(3,1fr);
   gap:10px;
   margin:16px 0;
 }
@@ -129,7 +129,7 @@ body{
 }
 .stat b{
   display:block;
-  margin-top:6px;
+  marginTop:6px;
   font-size:13px;
 }
 
@@ -232,7 +232,7 @@ body{
   <!-- LOADING STATE -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>Memuat data dari sistem...</p>
+    <p>Memuat data dari Google Sheets...</p>
     <div class="id-display" id="loadingId">ID: Loading...</div>
   </div>
   
@@ -245,6 +245,7 @@ body{
   <div id="content" style="display:none;">
     <div class="header">
       <div class="logo-wrap">
+        <!-- FOTO DEFAULT - AKAN DIUPDATE OTOMATIS -->
         <img id="fotoProfil" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg">
       </div>
       <h1>KOPERASI ASMARA TANI</h1>
@@ -286,7 +287,7 @@ body{
     </div>
 
     <div class="footer">
-      Data real-time dari sistem koperasi<br>
+      Data real-time dari Google Sheets<br>
       © Koperasi Asmara Tani <span id="currentYear"></span>
       <div class="last-update" id="lastUpdate">Terakhir update: -</div>
     </div>
@@ -296,19 +297,39 @@ body{
 <script>
 // =================== CONFIGURATION ===================
 const CONFIG = {
-  // URL ke data.json di GitHub Anda
-  DATA_URL: 'https://raw.githubusercontent.com/Kangeldzi/QR-Code-Anggota/main/data.json',
+  // GOOGLE SHEETS ID ANDA
+  GOOGLE_SHEET_ID: '1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU',
   
   // Default ID jika tidak ada parameter URL
   DEFAULT_ID: 'NIA-001',
   
   // Interval auto-refresh (milidetik)
-  REFRESH_INTERVAL: 60000, // 60 detik
+  REFRESH_INTERVAL: 30000, // 30 detik
+  
+  // Foto default jika tidak ada foto di Google Sheets
+  DEFAULT_PHOTO: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg',
+  
+  // Fallback data jika Google Sheets error
+  FALLBACK_DATA: {
+    'NIA-001': {
+      nama: 'ELDI SUGIANTO, S.Kom',
+      id: 'NIA-001',
+      status: 'AKTIF',
+      posisi: 'Anggota',
+      simpanan_pokok: 200000,
+      simpanan_wajib: 0,
+      simpanan_sukarela: 0,
+      email: 'eldzi4212@gmail.com',
+      whatsapp: '085218483129',
+      alamat: 'Data sedang dimuat...',
+      foto: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg'
+    }
+  }
 };
 
 // =================== GLOBAL VARIABLES ===================
 let currentMemberId = CONFIG.DEFAULT_ID;
-let allMembersData = {};
+let memberData = null;
 let refreshTimer = null;
 
 // =================== HELPER FUNCTIONS ===================
@@ -381,27 +402,127 @@ function showToast(message) {
   }, 2000);
 }
 
-// =================== LOAD DATA FROM GITHUB ===================
-async function loadAllData() {
+// =================== LOAD DATA FROM GOOGLE SHEETS ===================
+async function loadDataFromGoogleSheets() {
   try {
-    console.log('Loading data from:', CONFIG.DATA_URL);
+    const sheetId = CONFIG.GOOGLE_SHEET_ID;
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
     
-    const response = await fetch(CONFIG.DATA_URL + '?t=' + Date.now());
+    console.log('Loading from Google Sheets:', sheetUrl);
+    
+    const response = await fetch(sheetUrl + '&t=' + Date.now());
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    const data = await response.json();
-    allMembersData = data;
-    console.log('Data loaded successfully, members:', Object.keys(data).length);
+    const text = await response.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
     
-    return true;
+    return parseGoogleSheetsData(json);
   } catch (error) {
-    console.error('Error loading data:', error);
-    showError(`Gagal memuat data: ${error.message}`);
-    return false;
+    console.error('Error loading from Google Sheets:', error);
+    throw error;
   }
+}
+
+function parseGoogleSheetsData(jsonData) {
+  const rows = jsonData.table.rows;
+  const headers = rows[0].c.map(cell => cell ? cell.v : '');
+  
+  const membersData = {};
+  
+  // Mulai dari baris 2 (baris 1 adalah header)
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i].c;
+    if (!row[0] || !row[0].v) continue; // Skip jika ID kosong
+    
+    const id = row[0].v.toString().trim();
+    const member = {};
+    
+    // Map setiap kolom berdasarkan header
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j];
+      const value = row[j] ? row[j].v : '';
+      
+      // Mapping header ke field yang sesuai
+      switch(header.toLowerCase()) {
+        case 'id':
+        case 'id anggota':
+        case 'nia':
+          member.id = value;
+          break;
+        case 'nama':
+        case 'nama anggota':
+          member.nama = value;
+          break;
+        case 'email':
+          member.email = value;
+          break;
+        case 'status':
+          member.status = value;
+          break;
+        case 'posisi':
+        case 'jabatan':
+          member.posisi = value;
+          break;
+        case 'alamat':
+          member.alamat = value;
+          break;
+        case 'whatsapp':
+        case 'telepon':
+        case 'no telepon':
+          member.whatsapp = value;
+          member.telepon = value;
+          break;
+        case 'jenis kelamin':
+        case 'jk':
+          member.jenis_kelamin = value;
+          member.jk = value;
+          break;
+        case 'agama':
+          member.agama = value;
+          break;
+        case 'nik':
+          member.nik = value;
+          break;
+        case 'tanggal bergabung':
+        case 'tgl daftar':
+        case 'tanggal daftar':
+          member.tanggal_bergabung = value;
+          member.tgl_daftar = value;
+          break;
+        case 'simpanan pokok':
+          member.simpanan_pokok = parseFloat(value) || 0;
+          break;
+        case 'simpanan wajib':
+          member.simpanan_wajib = parseFloat(value) || 0;
+          break;
+        case 'simpanan sukarela':
+          member.simpanan_sukarela = parseFloat(value) || 0;
+          break;
+        case 'total pinjaman':
+          member.total_pinjaman = parseFloat(value) || 0;
+          break;
+        case 'shu':
+        case 'shu estimasi':
+        case 'estimasi shu':
+          member.shu_estimasi = parseFloat(value) || 0;
+          member.shu = parseFloat(value) || 0;
+          break;
+        case 'foto':
+        case 'foto url':
+        case 'link foto':
+          member.foto = value;
+          break;
+      }
+    }
+    
+    membersData[id] = member;
+  }
+  
+  console.log('Parsed data:', Object.keys(membersData).length, 'members');
+  return membersData;
 }
 
 async function loadMemberData() {
@@ -415,14 +536,15 @@ async function loadMemberData() {
     document.getElementById('content').style.display = 'none';
     hideError();
     
-    // 3. Load data jika belum ada
-    if (Object.keys(allMembersData).length === 0) {
-      const success = await loadAllData();
-      if (!success) {
-        // Gunakan data fallback
-        useFallbackData();
-        return;
-      }
+    // 3. Load data dari Google Sheets
+    let allMembersData = {};
+    
+    try {
+      allMembersData = await loadDataFromGoogleSheets();
+    } catch (sheetsError) {
+      console.warn('Google Sheets error, using fallback:', sheetsError);
+      allMembersData = CONFIG.FALLBACK_DATA;
+      showError('Menggunakan data offline (Google Sheets tidak dapat diakses)');
     }
     
     // 4. Cari data anggota
@@ -451,8 +573,8 @@ async function loadMemberData() {
 
 function useFallbackData() {
   // Data fallback jika data tidak ditemukan
-  const fallbackData = {
-    nama: currentMemberId === 'NIA-001' ? 'ELDI SUGIANTO, S.Kom' : `Anggota ${currentMemberId}`,
+  const fallbackData = CONFIG.FALLBACK_DATA[currentMemberId] || {
+    nama: `Anggota ${currentMemberId}`,
     id: currentMemberId,
     status: 'AKTIF',
     posisi: 'Anggota',
@@ -464,7 +586,7 @@ function useFallbackData() {
     email: '',
     whatsapp: '',
     alamat: 'Data tidak ditemukan',
-    foto: `https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg`
+    foto: CONFIG.DEFAULT_PHOTO
   };
   
   updateUI(fallbackData);
@@ -513,10 +635,27 @@ function updateUI(data) {
   document.getElementById('totalPinjaman').textContent = formatRupiah(data.total_pinjaman);
   document.getElementById('shu').textContent = formatRupiah(data.shu_estimasi || data.shu);
   
-  // Update foto jika ada
-  const fotoUrl = data.foto || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama || currentMemberId)}&background=3b82f6&color=fff&size=200`;
-  document.getElementById('fotoProfil').src = fotoUrl;
-  document.getElementById('fotoProfil').alt = data.nama || 'Foto Profil';
+  // ========== FIX: UPDATE FOTO ==========
+  // Gunakan foto dari data, atau default, atau foto khusus dari Google Sheets
+  let fotoUrl = data.foto || CONFIG.DEFAULT_PHOTO;
+  
+  // Jika ada kolom foto di Google Sheets, gunakan itu
+  if (data.foto && data.foto.trim() !== '') {
+    fotoUrl = data.foto;
+  }
+  
+  // Update elemen gambar
+  const fotoElement = document.getElementById('fotoProfil');
+  fotoElement.src = fotoUrl;
+  fotoElement.alt = data.nama || 'Foto Profil';
+  
+  // Pastikan gambar load
+  fotoElement.onerror = function() {
+    console.warn('Foto gagal dimuat:', fotoUrl);
+    // Fallback ke avatar generator
+    const initials = data.nama ? data.nama.charAt(0) : 'A';
+    fotoElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama || currentMemberId)}&background=0f3d28&color=fff&size=200`;
+  };
   
   // Update timestamp
   const now = new Date();
@@ -525,14 +664,18 @@ function updateUI(data) {
   
   // Update tahun di footer
   document.getElementById('currentYear').textContent = now.getFullYear();
+  
+  // Update judul halaman
+  if (data.nama) {
+    document.title = `Kartu Anggota - ${data.nama}`;
+  }
 }
 
 // =================== ACTION FUNCTIONS ===================
 function refreshData() {
   // Reset cache dan reload
-  allMembersData = {};
   loadMemberData();
-  showToast('Memperbarui data...');
+  showToast('Memperbarui data dari Google Sheets...');
 }
 
 function exportPDF() {
@@ -624,6 +767,31 @@ function exportPDF() {
   }, 500);
 }
 
+// =================== GOOGLE SHEETS STRUCTURE GUIDE ===================
+function showGoogleSheetsGuide() {
+  alert(`📋 STRUKTUR GOOGLE SHEETS YANG DIBUTUHKAN:
+
+Kolom A: ID (contoh: NIA-001)
+Kolom B: Nama
+Kolom C: Email
+Kolom D: Status
+Kolom E: Posisi
+Kolom F: Alamat
+Kolom G: WhatsApp
+Kolom H: Jenis Kelamin
+Kolom I: Agama
+Kolom J: NIK
+Kolom K: Tanggal Bergabung
+Kolom L: Simpanan Pokok
+Kolom M: Simpanan Wajib
+Kolom N: Simpanan Sukarela
+Kolom O: Total Pinjaman
+Kolom P: SHU Estimasi
+Kolom Q: Foto (URL)
+
+URL Sheets Anda: https://docs.google.com/spreadsheets/d/${CONFIG.GOOGLE_SHEET_ID}/edit`);
+}
+
 // =================== INITIALIZATION ===================
 function initializeApp() {
   // 1. Load data pertama kali
@@ -642,6 +810,41 @@ function initializeApp() {
   if (urlId) {
     document.title = `Kartu Anggota - ${urlId}`;
   }
+  
+  // 5. Tambah tombol guide untuk admin
+  setTimeout(() => {
+    const actionsDiv = document.querySelector('.actions');
+    if (actionsDiv) {
+      const guideBtn = document.createElement('button');
+      guideBtn.innerHTML = '📋 Struktur Data';
+      guideBtn.onclick = showGoogleSheetsGuide;
+      guideBtn.style.cssText = `
+        flex: 1;
+        border: none;
+        padding: 10px;
+        border-radius: 14px;
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 14px rgba(255, 193, 7, 0.5);
+        transition: .3s;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+      `;
+      guideBtn.onmouseover = function() {
+        this.style.background = '#ffc107';
+        this.style.color = '#003a24';
+        this.style.transform = 'translateY(-2px)';
+      };
+      guideBtn.onmouseout = function() {
+        this.style.background = 'rgba(255, 193, 7, 0.2)';
+        this.style.color = '#ffc107';
+        this.style.transform = 'translateY(0)';
+      };
+      actionsDiv.appendChild(guideBtn);
+    }
+  }, 1000);
 }
 
 // =================== EVENT LISTENERS ===================
@@ -655,15 +858,12 @@ window.debugData = function(id = 'NIA-001') {
   console.log('Debug: Loading data for', id);
 };
 
-window.getAllData = function() {
-  return allMembersData;
+window.getGoogleSheetsUrl = function() {
+  return `https://docs.google.com/spreadsheets/d/${CONFIG.GOOGLE_SHEET_ID}/edit`;
 };
 
-window.getCurrentMember = function() {
-  return {
-    id: currentMemberId,
-    data: allMembersData[currentMemberId]
-  };
+window.openGoogleSheets = function() {
+  window.open(`https://docs.google.com/spreadsheets/d/${CONFIG.GOOGLE_SHEET_ID}/edit`, '_blank');
 };
 </script>
 
