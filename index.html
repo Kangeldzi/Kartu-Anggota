@@ -297,75 +297,190 @@ body{
 <script>
 // =================== CONFIGURATION ===================
 const CONFIG = {
-  // PAKAI METODE SEDERHANA - LANGSUNG AMBIL 1 DATA SAJA
-  USE_SIMPLE_API: true,
+  // GOOGLE APPS SCRIPT API URL ANDA
+  GOOGLE_APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwNUuCYm8n-k5eLuGRvGmJF9BehPx4n-wOeGdd-FTouyXYEStL47_evHyIEXyj4ep8q/exec',
   
-  // Data langsung (ganti dengan data Eldi asli)
-  DIRECT_DATA: {
+  // Default ID jika tidak ada parameter URL
+  DEFAULT_ID: 'NIA-001',
+  
+  // Interval auto-refresh (milidetik)
+  REFRESH_INTERVAL: 30000, // 30 detik
+  
+  // Timeout untuk fetch (detik)
+  FETCH_TIMEOUT: 10000, // 10 detik
+  
+  // Foto default jika tidak ada foto di Google Sheets
+  DEFAULT_PHOTO: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg',
+  
+  // Fallback data jika API error
+  FALLBACK_DATA: {
     'NIA-001': {
-      id: 'NIA-001',
       nama: 'ELDI SUGIANTO, S.Kom',
-      email: 'eldzi4212@gmail.com',
+      id: 'NIA-001',
       status: 'AKTIF',
       posisi: 'Anggota',
-      alamat: 'Jl. Contoh No. 123, Bogor',
-      whatsapp: '08123456789',
-      jenis_kelamin: 'Laki-laki',
-      agama: 'Islam',
-      nik: '3201171212810011',
-      tanggal_bergabung: '2023-01-15',
       simpanan_pokok: 500000,
       simpanan_wajib: 100000,
       simpanan_sukarela: 250000,
-      total_pinjaman: 0,
-      shu_estimasi: 75000,
+      email: 'eldzi4212@gmail.com',
+      whatsapp: '08123456789',
+      alamat: 'Bogor, Jawa Barat',
       foto: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg'
     }
   },
   
-  DEFAULT_ID: 'NIA-001',
-  REFRESH_INTERVAL: 60000
+  // Cache data di localStorage untuk loading cepat
+  USE_CACHE: true,
+  CACHE_DURATION: 300000, // 5 menit cache
 };
 
 // Di fungsi loadMemberData, ganti dengan:
+// =================== LOAD DATA FROM GOOGLE APPS SCRIPT ===================
 async function loadMemberData() {
-  currentMemberId = getParameterByName('id') || CONFIG.DEFAULT_ID;
-  
-  // Loading cepat dengan data langsung
-  document.getElementById('loadingId').textContent = `ID: ${currentMemberId}`;
-  document.getElementById('loading').style.display = 'block';
-  
-  // Simulasi loading 1 detik
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  const memberData = CONFIG.DIRECT_DATA[currentMemberId] || {
-    nama: `Anggota ${currentMemberId}`,
-    id: currentMemberId,
-    status: 'AKTIF',
-    posisi: 'Anggota',
-    simpanan_pokok: 0,
-    simpanan_wajib: 0,
-    simpanan_sukarela: 0,
-    foto: CONFIG.DEFAULT_PHOTO
-  };
-  
-  updateUI(memberData);
-  
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('content').style.display = 'block';
-  
-  // Coba load dari Google Sheets di background
-  setTimeout(async () => {
-    try {
-      const sheetData = await loadFromGoogleSheets();
-      if (sheetData && sheetData[currentMemberId]) {
-        updateUI(sheetData[currentMemberId]);
-        showToast('Data diperbarui dari Google Sheets');
+  try {
+    // 1. Ambil ID dari URL atau pakai default
+    currentMemberId = getParameterByName('id') || CONFIG.DEFAULT_ID;
+    
+    // 2. Update loading display
+    document.getElementById('loadingId').textContent = `ID: ${currentMemberId}`;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('content').style.display = 'none';
+    hideError();
+    
+    // 3. Coba pakai cache dulu untuk loading cepat
+    if (CONFIG.USE_CACHE) {
+      const cachedData = getCachedData(currentMemberId);
+      if (cachedData) {
+        console.log('Loading from cache for fast display');
+        updateUI(cachedData);
+        
+        // Tampilkan data cache dulu, lalu sync di background
+        setTimeout(() => {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('content').style.display = 'block';
+        }, 300);
+        
+        // Load fresh data di background
+        setTimeout(() => loadFreshData(currentMemberId), 1000);
+        return;
       }
-    } catch (error) {
-      console.log('Background sync failed:', error.message);
     }
-  }, 2000);
+    
+    // 4. Load fresh data langsung
+    await loadFreshData(currentMemberId);
+    
+  } catch (error) {
+    console.error('Error loading member data:', error);
+    showError(`Error: ${error.message}`);
+    useFallbackData();
+  }
+}
+
+async function loadFreshData(memberId) {
+  try {
+    console.log('Loading fresh data for:', memberId);
+    
+    // Setup timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CONFIG.FETCH_TIMEOUT);
+    
+    // Call Google Apps Script API
+    const apiUrl = `${CONFIG.GOOGLE_APPS_SCRIPT_URL}?id=${encodeURIComponent(memberId)}&t=${Date.now()}`;
+    console.log('API URL:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      signal: controller.signal,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    console.log('API Response:', result);
+    
+    if (result.success && result.data) {
+      // Simpan ke cache
+      if (CONFIG.USE_CACHE) {
+        setCachedData(memberId, result.data);
+      }
+      
+      updateUI(result.data);
+      hideError();
+    } else {
+      throw new Error(result.error || 'Data tidak ditemukan di Google Sheets');
+    }
+    
+  } catch (error) {
+    console.error('Fresh data load error:', error);
+    throw error;
+  } finally {
+    // Tampilkan konten (bahkan jika error, tampilkan fallback)
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+    }, 500);
+  }
+}
+
+// =================== CACHE SYSTEM ===================
+function getCachedData(memberId) {
+  if (!CONFIG.USE_CACHE) return null;
+  
+  try {
+    const cached = localStorage.getItem(`kartuAnggota_${memberId}`);
+    if (!cached) return null;
+    
+    const { data, timestamp } = JSON.parse(cached);
+    const now = Date.now();
+    
+    // Cek jika cache masih valid (5 menit)
+    if (now - timestamp < CONFIG.CACHE_DURATION) {
+      return data;
+    }
+  } catch (e) {
+    console.warn('Cache error:', e);
+  }
+  
+  return null;
+}
+
+function setCachedData(memberId, data) {
+  if (!CONFIG.USE_CACHE) return;
+  
+  try {
+    const cache = {
+      data: data,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(`kartuAnggota_${memberId}`, JSON.stringify(cache));
+  } catch (e) {
+    console.warn('Failed to cache data:', e);
+  }
+}
+
+// =================== TEST GOOGLE APPS SCRIPT ===================
+async function testGoogleAppsScript() {
+  try {
+    const testUrl = `${CONFIG.GOOGLE_APPS_SCRIPT_URL}?id=NIA-001`;
+    const response = await fetch(testUrl);
+    const result = await response.json();
+    
+    console.log('Test Result:', result);
+    alert(`Google Apps Script Test: ${result.success ? 'SUCCESS' : 'ERROR'}\nMessage: ${result.error || 'Data loaded'}`);
+    
+    return result.success;
+  } catch (error) {
+    console.error('Test failed:', error);
+    alert(`Test FAILED: ${error.message}`);
+    return false;
+  }
 }
 
 // =================== GLOBAL VARIABLES ===================
@@ -820,14 +935,14 @@ function initializeApp() {
     document.title = `Kartu Anggota - ${urlId}`;
   }
   
-  // 5. Tambah tombol guide untuk admin
+  // 5. Tambah tombol test untuk debugging
   setTimeout(() => {
     const actionsDiv = document.querySelector('.actions');
     if (actionsDiv) {
-      const guideBtn = document.createElement('button');
-      guideBtn.innerHTML = '📋 Struktur Data';
-      guideBtn.onclick = showGoogleSheetsGuide;
-      guideBtn.style.cssText = `
+      const testBtn = document.createElement('button');
+      testBtn.innerHTML = '🧪 Test API';
+      testBtn.onclick = testGoogleAppsScript;
+      testBtn.style.cssText = `
         flex: 1;
         border: none;
         padding: 10px;
@@ -841,19 +956,19 @@ function initializeApp() {
         cursor: pointer;
         font-family: 'Poppins', sans-serif;
       `;
-      guideBtn.onmouseover = function() {
+      testBtn.onmouseover = function() {
         this.style.background = '#ffc107';
         this.style.color = '#003a24';
         this.style.transform = 'translateY(-2px)';
       };
-      guideBtn.onmouseout = function() {
+      testBtn.onmouseout = function() {
         this.style.background = 'rgba(255, 193, 7, 0.2)';
         this.style.color = '#ffc107';
         this.style.transform = 'translateY(0)';
       };
-      actionsDiv.appendChild(guideBtn);
+      actionsDiv.appendChild(testBtn);
     }
-  }, 1000);
+  }, 2000);
 }
 
 // =================== EVENT LISTENERS ===================
