@@ -4,50 +4,221 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Kartu Digital Anggota</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* SALIN SEMUA CSS ANDA DI SINI (TANPA PERUBAHAN) */
-body{
-  margin:0;
-  background:linear-gradient(180deg,#061b12,#020b07);
-  font-family:'Poppins',sans-serif;
-  display:flex;
-  justify-content:center;
-  padding:16px;
-  color:#fff;
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #061b12, #020b07);
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  color: #fff;
 }
 
-.card{
-  width:100%;
-  max-width:390px;
-  background:linear-gradient(160deg,#0f3d28,#062015);
-  border-radius:22px;
-  padding:18px;
-  box-shadow:0 0 35px rgba(0,255,160,.35);
-  border:1px solid rgba(0,255,160,.35);
+.card {
+  width: 100%;
+  max-width: 390px;
+  background: linear-gradient(160deg, #0f3d28, #062015);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 0 35px rgba(0, 255, 160, .35);
+  border: 1px solid rgba(0, 255, 160, .35);
 }
 
-/* ... (SALIN SEMUA CSS LAINNYA TANPA PERUBAHAN) ... */
+.header {
+  text-align: center;
+  border-bottom: 1px dashed rgba(255, 255, 255, .25);
+  padding-bottom: 14px;
+}
 
-.status-inactive{
-  background:#ff3d0033 !important;
-  color:#ffa000 !important;
+.logo-wrap {
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(0, 255, 160, .6), inset 0 0 12px rgba(255, 255, 255, .25);
+  transition: .4s ease;
+  animation: float 4s ease-in-out infinite;
+}
+
+.logo-wrap:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 28px rgba(0, 255, 160, .9);
+}
+
+.logo-wrap img {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.header h1 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+  color: #7dffb2;
+}
+
+.header small {
+  font-size: 11px;
+  opacity: .85;
+}
+
+.status {
+  margin: 12px auto;
+  text-align: center;
+}
+
+.status span {
+  padding: 6px 18px;
+  border-radius: 20px;
+  background: #00ff9d33;
+  color: #00ff9d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-inactive {
+  background: #ff3d0033 !important;
+  color: #ffa000 !important;
+}
+
+.identity {
+  text-align: center;
+  margin: 14px 0;
+}
+
+.identity h2 {
+  margin: 4px 0;
+  font-size: 17px;
+}
+
+.identity p {
+  margin: 0;
+  font-size: 12px;
+  color: #a9ffd1;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.stat {
+  background: rgba(0, 255, 160, .15);
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+}
+
+.stat small {
+  font-size: 10px;
+  opacity: .9;
+}
+
+.stat b {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.data {
+  font-size: 12px;
+}
+
+.data div {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, .25);
+}
+
+.data span {
+  color: #b6ffd9;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 6px;
+}
+
+.actions button {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(0, 255, 160, .2);
+  color: #00ff9d;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 14px rgba(0, 255, 160, .5);
+  transition: .3s;
+}
+
+.actions button:hover {
+  background: #00ff9d;
+  color: #003a24;
+  transform: translateY(-2px);
+}
+
+.footer {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 10px;
+  opacity: .75;
+}
+
+.loading {
+  text-align: center;
+  padding: 30px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 255, 160, .3);
+  border-top: 3px solid #00ff9d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.last-update {
+  font-size: 9px;
+  text-align: center;
+  margin-top: 5px;
+  opacity: .6;
 }
 </style>
 </head>
 
 <body>
-
 <div class="card" id="cardContent">
-  <!-- LOADING STATE -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
     <p>Memuat data anggota...</p>
   </div>
   
-  <!-- CONTENT (hidden by default) -->
   <div id="content" style="display:none;">
     <div class="header">
       <div class="logo-wrap">
@@ -98,12 +269,9 @@ body{
   </div>
 </div>
 
-<!-- 1. PASTIKAN FILE data.js ADA DI FOLDER YANG SAMA -->
 <script src="data.js"></script>
 
-<!-- 2. SCRIPT UTAMA -->
 <script>
-// =================== HELPER FUNCTIONS ===================
 function formatRupiah(angka) {
   if (!angka && angka !== 0) return 'Rp 0';
   return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -119,74 +287,34 @@ function getParameterByName(name) {
   return url.searchParams.get(name);
 }
 
-function getStatusClass(status) {
-  if (!status) return '';
-  const statusLower = status.toLowerCase();
-  if (statusLower.includes('tidak') || statusLower.includes('non') || statusLower === 'inactive') {
-    return 'status-inactive';
-  }
-  return '';
-}
-
-// =================== LOAD DATA FUNCTION ===================
 function loadMemberData() {
   try {
-    // 1. Ambil ID dari URL atau pakai default
     const memberId = getParameterByName('id') || 'KOP-001';
-    
-    console.log('Mencari anggota dengan ID:', memberId);
-    console.log('Total data tersedia:', MEMBERS_DATA?.length || 0);
-    
-    // 2. Cari data anggota
     const memberData = MEMBERS_DATA.find(m => m.ID === memberId) || MEMBERS_DATA[0];
-    
-    if (!memberData) {
-      throw new Error('Data anggota tidak ditemukan');
-    }
-    
-    console.log('Data ditemukan:', memberData);
-    
-    // 3. Update UI
     updateUI(memberData);
-    
-    // 4. Tampilkan konten
-    showContent();
-    
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
   } catch (error) {
-    console.error('Error loading data:', error);
-    // Fallback ke data pertama jika error
-    if (MEMBERS_DATA && MEMBERS_DATA.length > 0) {
-      updateUI(MEMBERS_DATA[0]);
-      showContent();
-    } else {
-      document.getElementById('loading').innerHTML = `
-        <div style="color:#ff5555;font-size:48px;">⚠️</div>
-        <p>Data tidak tersedia</p>
-        <p style="font-size:12px;">Pastikan file data.js sudah ada</p>
-      `;
-    }
+    console.error('Error:', error);
+    document.getElementById('loading').innerHTML = '<p style="color:red;">Error loading data</p>';
   }
 }
 
-// =================== UPDATE UI ===================
 function updateUI(data) {
   if (!data) return;
   
-  // Update basic info
   document.getElementById('nama').textContent = data.Nama || '-';
-  document.getElementById('nia').textContent = `NIA : ${data.ID || '-'}`;
+  document.getElementById('nia').textContent = 'NIA : ' + (data.ID || '-');
+  document.getElementById('statusText').textContent = data.Status || 'AKTIF';
   
-  // Update status
-  const statusElement = document.getElementById('statusText');
-  statusElement.textContent = data.Status || 'AKTIF';
-  statusElement.className = getStatusClass(data.Status);
+  if (data.Status === 'TIDAK AKTIF') {
+    document.getElementById('statusText').className = 'status-inactive';
+  }
   
-  // Update simpanan
   document.getElementById('pokok').textContent = formatRupiah(data['Simpanan Pokok'] || 0);
   document.getElementById('wajib').textContent = formatRupiah(data['Simpanan Wajib'] || 0);
   document.getElementById('sukarela').textContent = formatRupiah(data['Simpanan Sukarela'] || 0);
   
-  // Update data pribadi
   document.getElementById('alamat').textContent = data.Alamat || '-';
   document.getElementById('jk').textContent = data['Jenis Kelamin'] || '-';
   document.getElementById('agama').textContent = data.Agama || '-';
@@ -195,57 +323,27 @@ function updateUI(data) {
   document.getElementById('telepon').textContent = data.WhatsApp || '-';
   document.getElementById('tglDaftar').textContent = formatDate(data['Tanggal Bergabung']);
   
-  // Calculate totals
-  const pokok = parseFloat(data['Simpanan Pokok']) || 0;
-  const wajib = parseFloat(data['Simpanan Wajib']) || 0;
-  const sukarela = parseFloat(data['Simpanan Sukarela']) || 0;
-  const totalSimpanan = pokok + wajib + sukarela;
+  const totalSimpanan = (parseFloat(data['Simpanan Pokok']) || 0) + 
+                       (parseFloat(data['Simpanan Wajib']) || 0) + 
+                       (parseFloat(data['Simpanan Sukarela']) || 0);
   
   document.getElementById('totalSimpanan').textContent = formatRupiah(totalSimpanan);
   document.getElementById('totalPinjaman').textContent = formatRupiah(data['Total Pinjaman'] || 0);
   document.getElementById('shu').textContent = formatRupiah(data['SHU Estimasi'] || 0);
   
-  // Update foto jika ada
   if (data.Foto) {
-    const logoImg = document.querySelector('.logo-wrap img');
-    if (logoImg) {
-      logoImg.src = data.Foto;
-      logoImg.alt = `Foto ${data.Nama}`;
-    }
+    document.querySelector('.logo-wrap img').src = data.Foto;
   }
   
-  // Update timestamp
   document.getElementById('lastUpdate').textContent = 
-    `Terakhir update: ${new Date().toLocaleString('id-ID')}`;
+    'Terakhir update: ' + new Date().toLocaleString('id-ID');
 }
 
-function showContent() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('content').style.display = 'block';
-}
-
-// =================== EXPORT FUNCTION ===================
 function exportPDF() {
-  // Untuk sementara, gunakan print browser
   window.print();
 }
 
-// =================== INITIAL LOAD ===================
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM Loaded, starting data load...');
-  loadMemberData();
-});
-
-// =================== DEBUG FUNCTIONS ===================
-// Untuk testing di console browser
-window.showAllData = function() {
-  console.log('All Members Data:', MEMBERS_DATA);
-};
-
-window.switchMember = function(id) {
-  window.location.search = `?id=${id}`;
-  loadMemberData();
-};
+document.addEventListener('DOMContentLoaded', loadMemberData);
 </script>
 </body>
 </html>
