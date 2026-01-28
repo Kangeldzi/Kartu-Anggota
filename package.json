@@ -1,0 +1,11 @@
+{
+  "name": "kartu-anggota",
+  "version": "1.0.0",
+  "description": "QR Code Hybrid - Static HTML",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Building static site...'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
