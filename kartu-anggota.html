@@ -311,18 +311,26 @@ const CONFIG = {
   
   // Data instant untuk loading cepat
   INSTANT_DATA: {
-    'NIA-001': {
-      nama: 'ELDI SUGIANTO, S.Kom',
-      email: 'eldzi4212@gmail.com',
-      status: 'AKTIF',
-      posisi: 'Anggota',
-      simpanan_pokok: 500000,
-      simpanan_wajib: 100000,
-      simpanan_sukarela: 250000,
-      whatsapp: '08123456789',
-      alamat: 'Bogor, Jawa Barat'
-    }
+  'NIA-001': {
+    nama: 'Eldi Sugianto, S.Kom',
+    email: 'siliwangi4212@gmail.com',
+    status: 'AKTIF',
+    posisi: 'Anggota',
+    alamat: 'Kp. Banjar Karya Rt. 02 Rw. 01 Desa Ciasmara Kecamatan Pamijahan Kabupaten Bogor Kode POS 16810',
+    whatsapp: '85218483129',
+    simpanan_pokok: 200000,
+    shu_estimasi: 44000
+  },
+  'NIA-002': {
+    nama: 'M. Taufik Yusuf',
+    email: 'eldisugih@gmail.com',
+    status: 'AKTIF',
+    posisi: 'Anggota',
+    alamat: 'Kp. Sindang Hayu Rt. 03 Rw. 05 Desa Ciasmara Kecamatan Pamijahan Kabupaten Bogor Kode POS 16810',
+    whatsapp: '81284866578',
+    simpanan_pokok: 200000
   }
+}
 };
 
 // =================== GLOBAL VARIABLES ===================
@@ -500,33 +508,42 @@ async function loadRealData() {
     // Tidak tampilkan error, biarkan data instan tetap tampil
   }
 }
-
-function updateUI(data) {
-  if (!data) return;
   
   // Mapping field dari Google Sheets
+  function updateUI(data) {
+  if (!data) return;
+  
+  // MAPPING KHUSUS UNTUK DATA ANDA
   const member = {
     id: data.ID || data.id || currentMemberId,
-    nama: data.Nama || data.nama || data.Nama_Anggota || '-',
+    nama: data.Nama || data.nama || '-',
     email: data.Email || data.email || '-',
     status: data.Status || data.status || 'AKTIF',
-    posisi: data.Posisi || data.posisi || data.Jabatan || 'Anggota',
+    posisi: data.Posisi || data.posisi || 'Anggota',
     alamat: data.Alamat || data.alamat || '-',
-    whatsapp: data.WhatsApp || data.whatsapp || data.Telepon || data.No_Telepon || '-',
-    telepon: data.WhatsApp || data.whatsapp || data.Telepon || data.No_Telepon || '-',
-    jenis_kelamin: data.Jenis_Kelamin || data.jenis_kelamin || data.JK || data.jk || '-',
-    jk: data.Jenis_Kelamin || data.jenis_kelamin || data.JK || data.jk || '-',
+    
+    // PERHATIAN: "WhatsApp " (dengan spasi)
+    whatsapp: data['WhatsApp '] || data.WhatsApp || data.whatsapp || '-',
+    telepon: data['WhatsApp '] || data.WhatsApp || data.whatsapp || '-',
+    
+    jenis_kelamin: data.Jenis_Kelamin || data.jenis_kelamin || '-',
+    jk: data.Jenis_Kelamin || data.jenis_kelamin || '-',
     agama: data.Agama || data.agama || '-',
     nik: data.NIK || data.nik || '-',
-    tanggal_bergabung: data.Tanggal_Bergabung || data.tanggal_bergabung || data.Tgl_Daftar || '-',
-    tgl_daftar: data.Tanggal_Bergabung || data.tanggal_bergabung || data.Tgl_Daftar || '-',
-    simpanan_pokok: parseFloat(data.Simpanan_Pokok || data.simpanan_pokok || 0),
-    simpanan_wajib: parseFloat(data.Simpanan_Wajib || data.simpanan_wajib || 0),
-    simpanan_sukarela: parseFloat(data.Simpanan_Sukarela || data.simpanan_sukarela || 0),
-    total_pinjaman: parseFloat(data.Total_Pinjaman || data.total_pinjaman || 0),
-    shu_estimasi: parseFloat(data.SHU_Estimasi || data.shu_estimasi || data.SHU || data.shu || 0),
-    shu: parseFloat(data.SHU_Estimasi || data.shu_estimasi || data.SHU || data.shu || 0),
-    foto: data.Foto || data.foto || data.Foto_URL || CONFIG.DEFAULT_PHOTO
+    
+    // Tanggal bisa dalam format berbeda
+    tanggal_bergabung: data.Tanggal_Bergabung || data.tanggal_bergabung || '-',
+    tgl_daftar: data.Tanggal_Bergabung || data.tanggal_bergabung || '-',
+    
+    // Konversi ke number (handle empty string)
+    simpanan_pokok: parseFloat(data.Simpanan_Pokok) || 0,
+    simpanan_wajib: parseFloat(data.Simpanan_Wajib) || 0,
+    simpanan_sukarela: parseFloat(data.Simpanan_Sukarela) || 0,
+    total_pinjaman: parseFloat(data.Total_Pinjaman) || 0,
+    shu_estimasi: parseFloat(data.SHU_Estimasi) || 0,
+    shu: parseFloat(data.SHU_Estimasi) || 0,
+    
+    foto: data.Foto || data.foto || CONFIG.DEFAULT_PHOTO
   };
   
   // Hitung total simpanan
