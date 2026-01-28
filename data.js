@@ -1,62 +1,11 @@
-// data.js - Fixed version
+// data.js - SIMPLE VERSION
 const MEMBERS_DATA = [
   {
     "ID": "KOP-001",
     "Nama": "Kang L",
-    "Email": "siliwangi@email.com",
+    "Email": "test@example.com",
     "Status": "AKTIF",
-    "Posisi": "Ketua",
-    "Alamat": "Pamijahan, Bogor",
-    "WhatsApp": "085218483129",
-    "Jenis Kelamin": "Laki-laki",
-    "Agama": "Islam",
-    "NIK": "3201171212810011",
-    "Tanggal Bergabung": "18-09-2025",
-    "Simpanan Pokok": 200000,
-    "Simpanan Wajib": 50000,
-    "Simpanan Sukarela": 100000,
-    "Total Pinjaman": 0,
-    "SHU Estimasi": 150000,
-    "Foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg"
-  },
-  {
-    "ID": "KOP-002",
-    "Nama": "Budi Santoso",
-    "Email": "budi@example.com",
-    "Status": "AKTIF",
-    "Posisi": "Anggota",
-    "Alamat": "Jl. Merdeka No. 123, Jakarta",
-    "WhatsApp": "081234567890",
-    "Jenis Kelamin": "Laki-laki",
-    "Agama": "Islam",
-    "NIK": "1234567890123456",
-    "Tanggal Bergabung": "2024-01-15",
-    "Simpanan Pokok": 150000,
-    "Simpanan Wajib": 75000,
-    "Simpanan Sukarela": 50000,
-    "Total Pinjaman": 1000000,
-    "SHU Estimasi": 85000,
-    "Foto": "https://via.placeholder.com/150"
-  },
-  {
-    "ID": "KOP-003",
-    "Nama": "Siti Rahayu",
-    "Email": "siti@example.com",
-    "Status": "TIDAK AKTIF",
-    "Posisi": "Anggota",
-    "Alamat": "Jl. Sudirman No. 45, Bandung",
-    "WhatsApp": "082345678901",
-    "Jenis Kelamin": "Perempuan",
-    "Agama": "Islam",
-    "NIK": "2345678901234567",
-    "Tanggal Bergabung": "2023-11-20",
-    "Simpanan Pokok": 200000,
-    "Simpanan Wajib": 100000,
-    "Simpanan Sukarela": 150000,
-    "Total Pinjaman": 0,
-    "SHU Estimasi": 120000,
-    "Foto": "https://via.placeholder.com/150"
+    "Alamat": "Bogor",
+    "WhatsApp": "08123456789"
   }
 ];
-
-console.log('data.js loaded successfully with', MEMBERS_DATA.length, 'members');
