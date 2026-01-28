@@ -297,40 +297,36 @@ body{
 <script>
 // =================== CONFIGURATION ===================
 const CONFIG = {
-  // OPENSHEET URL untuk Google Sheets Anda
+  // OPENSHEET URL - GUNAKAN INI
   OPENSHEET_URL: 'https://opensheet.elk.sh/1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU/Sheet1',
   
-  // Default ID jika tidak ada parameter URL
-  DEFAULT_ID: 'NIA-001',
+  // Atau gunakan API langsung dari Google Sheets (alternatif)
+  GOOGLE_SHEETS_API: 'https://docs.google.com/spreadsheets/d/1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU/gviz/tq?tqx=out:json',
   
-  // Interval auto-refresh (detik)
+  DEFAULT_ID: 'NIA-001',
   REFRESH_INTERVAL: 30,
   
-  // Foto default
   DEFAULT_PHOTO: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg',
   
-  // Data instant untuk loading cepat
+  // Data instan untuk loading cepat
   INSTANT_DATA: {
-  'NIA-001': {
-    nama: 'Eldi Sugianto, S.Kom',
-    email: 'siliwangi4212@gmail.com',
-    status: 'AKTIF',
-    posisi: 'Anggota',
-    alamat: 'Kp. Banjar Karya Rt. 02 Rw. 01 Desa Ciasmara Kecamatan Pamijahan Kabupaten Bogor Kode POS 16810',
-    whatsapp: '85218483129',
-    simpanan_pokok: 200000,
-    shu_estimasi: 44000
-  },
-  'NIA-002': {
-    nama: 'M. Taufik Yusuf',
-    email: 'eldisugih@gmail.com',
-    status: 'AKTIF',
-    posisi: 'Anggota',
-    alamat: 'Kp. Sindang Hayu Rt. 03 Rw. 05 Desa Ciasmara Kecamatan Pamijahan Kabupaten Bogor Kode POS 16810',
-    whatsapp: '81284866578',
-    simpanan_pokok: 200000
+    'NIA-001': {
+      ID: 'NIA-001',
+      Nama: 'Eldi Sugianto, S.Kom',
+      Email: 'siliwangi4212@gmail.com',
+      Status: 'AKTIF',
+      Posisi: 'Anggota',
+      Alamat: 'Kp. Banjar Karya Rt. 02 Rw. 01 Desa Ciasmara Kecamatan Pamijahan Kabupaten Bogor Kode POS 16810',
+      WhatsApp: '85218483129',
+      Jenis_Kelamin: 'Laki-laki',
+      Agama: 'Islam',
+      NIK: '3201171212810011',
+      Tanggal_Bergabung: '18 September 2020',
+      Simpanan_Pokok: '200000',
+      SHU_Estimasi: '44000',
+      Foto: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh1oM43gxD4iCHpHRBrrbkCHRU5MigalAWf4G5x-cTLfRRxWeeTwGqwNz8FtSdSgcexhRAIWMX7eZoOxo0b-i8kB2EUr44TCkMCZ8VVfQTJpL0AgptbY8hjsTZtqg6jbS2MMOuIVf9FvNOR-JsZr4dvrpqTQT0I5qY5OB063z38W0mTIVhQrBPTASmQp0/s1280/1000175639.jpg'
+    }
   }
-}
 };
 
 // =================== GLOBAL VARIABLES ===================
@@ -344,18 +340,52 @@ function formatRupiah(angka) {
 }
 
 function formatDate(dateString) {
-  if (!dateString || dateString === '-' || dateString.toLowerCase() === 'loading...') return '-';
+  if (!dateString || dateString === '-' || dateString === 'Loading...') return dateString || '-';
+  
   try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
-    return date.toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  } catch {
-    return dateString;
+    // Coba parse berbagai format tanggal
+    let date;
+    
+    // Format: "18 September 2020"
+    if (dateString.includes('September') || dateString.includes('Januari') || dateString.includes('Februari')) {
+      const months = {
+        'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
+        'Juli': '07', 'Agustus': '08', 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
+      };
+      
+      const parts = dateString.split(' ');
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const month = months[parts[1]];
+        const year = parts[2];
+        date = new Date(`${year}-${month}-${day}`);
+      }
+    }
+    // Format: "18/09/2020"
+    else if (dateString.includes('/')) {
+      const parts = dateString.split('/');
+      if (parts.length === 3) {
+        date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+      }
+    }
+    // Format default
+    else {
+      date = new Date(dateString);
+    }
+    
+    if (date && !isNaN(date.getTime())) {
+      return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+  } catch (e) {
+    console.log('Date parsing error:', e);
   }
+  
+  // Jika tidak bisa di-parse, return as-is
+  return dateString;
 }
 
 function getParameterByName(name) {
@@ -363,84 +393,7 @@ function getParameterByName(name) {
   return url.searchParams.get(name);
 }
 
-function showError(message) {
-  const errorElement = document.getElementById('errorMessage');
-  const errorText = document.getElementById('errorText');
-  
-  errorText.textContent = message;
-  errorElement.style.display = 'block';
-}
-
-function hideError() {
-  document.getElementById('errorMessage').style.display = 'none';
-}
-
-function showToast(message, type = 'info') {
-  const colors = {
-    info: { bg: 'rgba(0, 255, 160, 0.9)', text: '#003a24' },
-    success: { bg: 'rgba(76, 175, 80, 0.9)', text: '#fff' },
-    error: { bg: 'rgba(244, 67, 54, 0.9)', text: '#fff' }
-  };
-  
-  const toast = document.createElement('div');
-  toast.textContent = message;
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: ${colors[type].bg};
-    color: ${colors[type].text};
-    padding: 12px 24px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    max-width: 80%;
-    text-align: center;
-  `;
-  
-  document.body.appendChild(toast);
-  
-  setTimeout(() => {
-    document.body.removeChild(toast);
-  }, 3000);
-}
-
-// =================== LOAD DATA FROM OPENSHEET ===================
-async function loadAllMembersData() {
-  try {
-    console.log('Loading data from Opensheet...');
-    
-    const response = await fetch(CONFIG.OPENSHEET_URL + '?t=' + Date.now());
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    console.log('Data loaded from Opensheet:', data.length, 'rows');
-    
-    // Convert array to object dengan ID sebagai key
-    const membersMap = {};
-    data.forEach(row => {
-      if (row.ID) {
-        membersMap[row.ID] = row;
-      }
-    });
-    
-    allMembersData = membersMap;
-    console.log('Members map created:', Object.keys(membersMap).length, 'members');
-    
-    return true;
-  } catch (error) {
-    console.error('Error loading from Opensheet:', error);
-    showError(`Gagal memuat data: ${error.message}`);
-    return false;
-  }
-}
-
+// =================== LOAD DATA (MULTIPLE METHODS) ===================
 async function loadMemberData() {
   try {
     // 1. Ambil ID dari URL
@@ -449,116 +402,185 @@ async function loadMemberData() {
     // 2. Tampilkan loading ID
     document.getElementById('loadingId').textContent = `ID: ${currentMemberId}`;
     
-    // 3. Tampilkan INSTANT DATA langsung (tanpa loading)
+    // 3. Tampilkan INSTANT DATA langsung
     showInstantData();
     
-    // 4. Load real data di background
-    setTimeout(() => loadRealData(), 100);
+    // 4. Coba load dari berbagai sumber (Opensheet, Google Sheets API, dll)
+    setTimeout(() => tryAllDataSources(), 100);
     
   } catch (error) {
     console.error('Error in loadMemberData:', error);
-    showError(`Error: ${error.message}`);
   }
 }
 
 function showInstantData() {
-  // Tampilkan data instan langsung tanpa loading
-  const instantData = CONFIG.INSTANT_DATA[currentMemberId] || {
-    nama: `Anggota ${currentMemberId}`,
-    id: currentMemberId,
-    status: 'AKTIF',
-    posisi: 'Anggota',
-    simpanan_pokok: 0,
-    simpanan_wajib: 0,
-    simpanan_sukarela: 0,
-    total_pinjaman: 0,
-    shu_estimasi: 0
-  };
+  // Tampilkan data instan dari CONFIG
+  const instantData = CONFIG.INSTANT_DATA[currentMemberId];
   
-  updateUI(instantData);
+  if (instantData) {
+    updateUI(instantData);
+  } else {
+    // Data fallback jika ID tidak dikenal
+    updateUI({
+      ID: currentMemberId,
+      Nama: `Anggota ${currentMemberId}`,
+      Status: 'AKTIF',
+      Posisi: 'Anggota',
+      Simpanan_Pokok: '0',
+      SHU_Estimasi: '0'
+    });
+  }
   
   // Langsung tampilkan content, hide loading
   document.getElementById('loading').style.display = 'none';
   document.getElementById('content').style.display = 'block';
 }
 
-async function loadRealData() {
+async function tryAllDataSources() {
+  console.log('Trying all data sources...');
+  
+  // Coba Opensheet dulu
+  if (await tryOpensheet()) {
+    console.log('✅ Success from Opensheet');
+    showToast('✅ Data diperbarui dari Google Sheets', 'success');
+    return;
+  }
+  
+  // Jika Opensheet gagal, coba Google Sheets API langsung
+  if (await tryGoogleSheetsDirect()) {
+    console.log('✅ Success from Google Sheets API');
+    showToast('✅ Data dari Google Sheets', 'success');
+    return;
+  }
+  
+  console.log('⚠️ All data sources failed, using instant data');
+  showToast('⚠️ Menggunakan data cache', 'info');
+}
+
+async function tryOpensheet() {
   try {
-    // 1. Load semua data dari Opensheet
-    const success = await loadAllMembersData();
+    console.log('Trying Opensheet...');
     
-    if (!success) {
-      showToast('Gagal mengambil data terbaru', 'error');
-      return;
+    const response = await fetch(CONFIG.OPENSHEET_URL + '?t=' + Date.now(), {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (!response.ok) {
+      console.log(`Opensheet HTTP error: ${response.status}`);
+      return false;
     }
     
-    // 2. Cari data anggota
-    const memberData = allMembersData[currentMemberId];
+    const data = await response.json();
+    console.log('Opensheet data received:', data);
     
-    if (memberData) {
-      // 3. Update UI dengan data real dari Google Sheets
-      updateUI(memberData);
-      showToast('✅ Data diperbarui dari Google Sheets', 'success');
-    } else {
-      showToast(`⚠️ ID ${currentMemberId} tidak ditemukan di Google Sheets`, 'error');
+    // Convert array to object dengan ID sebagai key
+    const membersMap = {};
+    data.forEach(row => {
+      if (row.ID && row.ID.trim() !== '') {
+        // Bersihkan spasi di key names
+        const cleanRow = {};
+        Object.keys(row).forEach(key => {
+          const cleanKey = key.trim();
+          cleanRow[cleanKey] = row[key];
+        });
+        membersMap[row.ID] = cleanRow;
+      }
+    });
+    
+    allMembersData = membersMap;
+    
+    // Update UI dengan data real
+    if (allMembersData[currentMemberId]) {
+      updateUI(allMembersData[currentMemberId]);
+      return true;
     }
     
   } catch (error) {
-    console.error('Error loading real data:', error);
-    // Tidak tampilkan error, biarkan data instan tetap tampil
+    console.error('Opensheet error:', error.message);
   }
-}
   
-  // Mapping field dari Google Sheets
-  function updateUI(data) {
+  return false;
+}
+
+async function tryGoogleSheetsDirect() {
+  try {
+    console.log('Trying Google Sheets direct API...');
+    
+    const response = await fetch(CONFIG.GOOGLE_SHEETS_API + '&t=' + Date.now());
+    
+    if (!response.ok) {
+      console.log(`Google Sheets API error: ${response.status}`);
+      return false;
+    }
+    
+    const text = await response.text();
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    
+    const rows = json.table.rows;
+    const headers = rows[0].c.map(cell => cell ? cell.v.toString().trim() : '');
+    
+    const membersMap = {};
+    
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i].c;
+      if (!row[0] || !row[0].v) continue;
+      
+      const id = row[0].v.toString().trim();
+      if (!id) continue;
+      
+      const member = {};
+      
+      for (let j = 0; j < headers.length; j++) {
+        const key = headers[j];
+        const value = row[j] ? (row[j].v !== null ? row[j].v.toString() : '') : '';
+        member[key] = value;
+      }
+      
+      membersMap[id] = member;
+    }
+    
+    allMembersData = membersMap;
+    
+    if (allMembersData[currentMemberId]) {
+      updateUI(allMembersData[currentMemberId]);
+      return true;
+    }
+    
+  } catch (error) {
+    console.error('Google Sheets API error:', error.message);
+  }
+  
+  return false;
+}
+
+function updateUI(data) {
   if (!data) return;
   
-  // MAPPING KHUSUS UNTUK DATA ANDA
-  const member = {
-    id: data.ID || data.id || currentMemberId,
-    nama: data.Nama || data.nama || '-',
-    email: data.Email || data.email || '-',
-    status: data.Status || data.status || 'AKTIF',
-    posisi: data.Posisi || data.posisi || 'Anggota',
-    alamat: data.Alamat || data.alamat || '-',
-    
-    // PERHATIAN: "WhatsApp " (dengan spasi)
-    whatsapp: data['WhatsApp '] || data.WhatsApp || data.whatsapp || '-',
-    telepon: data['WhatsApp '] || data.WhatsApp || data.whatsapp || '-',
-    
-    jenis_kelamin: data.Jenis_Kelamin || data.jenis_kelamin || '-',
-    jk: data.Jenis_Kelamin || data.jenis_kelamin || '-',
-    agama: data.Agama || data.agama || '-',
-    nik: data.NIK || data.nik || '-',
-    
-    // Tanggal bisa dalam format berbeda
-    tanggal_bergabung: data.Tanggal_Bergabung || data.tanggal_bergabung || '-',
-    tgl_daftar: data.Tanggal_Bergabung || data.tanggal_bergabung || '-',
-    
-    // Konversi ke number (handle empty string)
-    simpanan_pokok: parseFloat(data.Simpanan_Pokok) || 0,
-    simpanan_wajib: parseFloat(data.Simpanan_Wajib) || 0,
-    simpanan_sukarela: parseFloat(data.Simpanan_Sukarela) || 0,
-    total_pinjaman: parseFloat(data.Total_Pinjaman) || 0,
-    shu_estimasi: parseFloat(data.SHU_Estimasi) || 0,
-    shu: parseFloat(data.SHU_Estimasi) || 0,
-    
-    foto: data.Foto || data.foto || CONFIG.DEFAULT_PHOTO
-  };
+  console.log('Updating UI with data:', data);
+  
+  // Clean data - handle WhatsApp dengan spasi
+  const cleanData = {};
+  Object.keys(data).forEach(key => {
+    const cleanKey = key.trim();
+    cleanData[cleanKey] = data[key];
+  });
   
   // Hitung total simpanan
-  const totalSimpanan = 
-    (member.simpanan_pokok || 0) + 
-    (member.simpanan_wajib || 0) + 
-    (member.simpanan_sukarela || 0);
+  const simpananPokok = parseFloat(cleanData.Simpanan_Pokok || cleanData.Simpanan_Pokok || 0);
+  const simpananWajib = parseFloat(cleanData.Simpanan_Wajib || cleanData.Simpanan_Wajib || 0);
+  const simpananSukarela = parseFloat(cleanData.Simpanan_Sukarela || cleanData.Simpanan_Sukarela || 0);
+  const totalSimpanan = simpananPokok + simpananWajib + simpananSukarela;
   
   // Update basic info
-  document.getElementById('nama').textContent = member.nama;
-  document.getElementById('nia').textContent = `NIA : ${member.id}`;
+  document.getElementById('nama').textContent = cleanData.Nama || '-';
+  document.getElementById('nia').textContent = `NIA : ${cleanData.ID || currentMemberId}`;
   
   // Update status
   const statusElement = document.getElementById('statusText');
-  const status = member.status.toUpperCase();
+  const status = (cleanData.Status || 'AKTIF').toUpperCase();
   statusElement.textContent = status;
   
   if (status === 'TIDAK AKTIF' || status === 'NON AKTIF') {
@@ -568,32 +590,37 @@ async function loadRealData() {
   }
   
   // Update simpanan
-  document.getElementById('pokok').textContent = formatRupiah(member.simpanan_pokok);
-  document.getElementById('wajib').textContent = formatRupiah(member.simpanan_wajib);
-  document.getElementById('sukarela').textContent = formatRupiah(member.simpanan_sukarela);
+  document.getElementById('pokok').textContent = formatRupiah(simpananPokok);
+  document.getElementById('wajib').textContent = formatRupiah(simpananWajib);
+  document.getElementById('sukarela').textContent = formatRupiah(simpananSukarela);
   
   // Update data pribadi
-  document.getElementById('alamat').textContent = member.alamat;
-  document.getElementById('jk').textContent = member.jenis_kelamin;
-  document.getElementById('agama').textContent = member.agama;
-  document.getElementById('nik').textContent = member.nik;
-  document.getElementById('email').textContent = member.email;
-  document.getElementById('telepon').textContent = member.whatsapp || member.telepon;
-  document.getElementById('tglDaftar').textContent = formatDate(member.tanggal_bergabung);
+  document.getElementById('alamat').textContent = cleanData.Alamat || '-';
+  document.getElementById('jk').textContent = cleanData.Jenis_Kelamin || cleanData.Jenis_Kelamin || '-';
+  document.getElementById('agama').textContent = cleanData.Agama || '-';
+  document.getElementById('nik').textContent = cleanData.NIK || '-';
+  document.getElementById('email').textContent = cleanData.Email || '-';
+  
+  // Handle WhatsApp (dengan atau tanpa spasi)
+  const whatsappValue = cleanData.WhatsApp || cleanData['WhatsApp '] || '-';
+  document.getElementById('telepon').textContent = whatsappValue;
+  
+  document.getElementById('tglDaftar').textContent = formatDate(cleanData.Tanggal_Bergabung || cleanData.Tanggal_Bergabung || '-');
   
   // Update keuangan
   document.getElementById('totalSimpanan').textContent = formatRupiah(totalSimpanan);
-  document.getElementById('totalPinjaman').textContent = formatRupiah(member.total_pinjaman);
-  document.getElementById('shu').textContent = formatRupiah(member.shu_estimasi);
+  document.getElementById('totalPinjaman').textContent = formatRupiah(parseFloat(cleanData.Total_Pinjaman || 0));
+  document.getElementById('shu').textContent = formatRupiah(parseFloat(cleanData.SHU_Estimasi || cleanData.SHU_Estimasi || 0));
   
   // Update foto
   const fotoElement = document.getElementById('fotoProfil');
-  fotoElement.src = member.foto;
-  fotoElement.alt = member.nama;
+  const fotoUrl = cleanData.Foto || CONFIG.DEFAULT_PHOTO;
+  fotoElement.src = fotoUrl;
+  fotoElement.alt = cleanData.Nama || 'Foto Profil';
   
   // Handle foto error
   fotoElement.onerror = function() {
-    console.warn('Foto gagal dimuat, menggunakan default');
+    console.warn('Foto gagal dimuat:', fotoUrl);
     fotoElement.src = CONFIG.DEFAULT_PHOTO;
   };
   
@@ -606,7 +633,9 @@ async function loadRealData() {
   document.getElementById('currentYear').textContent = now.getFullYear();
   
   // Update judul halaman
-  document.title = `Kartu Anggota - ${member.nama}`;
+  if (cleanData.Nama) {
+    document.title = `Kartu Anggota - ${cleanData.Nama}`;
+  }
 }
 
 // =================== ACTION FUNCTIONS ===================
@@ -618,6 +647,7 @@ function refreshData() {
 }
 
 function exportPDF() {
+  // [Sama seperti sebelumnya]
   const memberId = currentMemberId;
   const nama = document.getElementById('nama').textContent;
   
@@ -702,6 +732,39 @@ function exportPDF() {
   setTimeout(() => printWindow.print(), 500);
 }
 
+function showToast(message, type = 'info') {
+  const colors = {
+    info: { bg: 'rgba(0, 255, 160, 0.9)', text: '#003a24' },
+    success: { bg: 'rgba(76, 175, 80, 0.9)', text: '#fff' },
+    error: { bg: 'rgba(244, 67, 54, 0.9)', text: '#fff' }
+  };
+  
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: ${colors[type].bg};
+    color: ${colors[type].text};
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    max-width: 80%;
+    text-align: center;
+  `;
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    document.body.removeChild(toast);
+  }, 3000);
+}
+
 // =================== INITIALIZATION ===================
 function initializeApp() {
   // 1. Load data pertama kali
@@ -714,73 +777,25 @@ function initializeApp() {
   
   // 3. Setup tahun di footer
   document.getElementById('currentYear').textContent = new Date().getFullYear();
-  
-  // 4. Tambah debug button
-  addDebugButton();
-}
-
-function addDebugButton() {
-  setTimeout(() => {
-    const actionsDiv = document.querySelector('.actions');
-    if (actionsDiv) {
-      const debugBtn = document.createElement('button');
-      debugBtn.innerHTML = '🐛 Debug';
-      debugBtn.onclick = showDebugInfo;
-      debugBtn.style.cssText = `
-        flex: 1;
-        border: none;
-        padding: 10px;
-        border-radius: 14px;
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-        font-weight: 600;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 0 14px rgba(255, 193, 7, 0.5);
-        transition: .3s;
-        cursor: pointer;
-        font-family: 'Poppins', sans-serif;
-      `;
-      debugBtn.onmouseover = function() {
-        this.style.background = '#ffc107';
-        this.style.color = '#003a24';
-        this.style.transform = 'translateY(-2px)';
-      };
-      debugBtn.onmouseout = function() {
-        this.style.background = 'rgba(255, 193, 7, 0.2)';
-        this.style.color = '#ffc107';
-        this.style.transform = 'translateY(0)';
-      };
-      actionsDiv.appendChild(debugBtn);
-    }
-  }, 2000);
-}
-
-function showDebugInfo() {
-  console.log('=== DEBUG INFO ===');
-  console.log('Current ID:', currentMemberId);
-  console.log('All Data:', allMembersData);
-  console.log('Opensheet URL:', CONFIG.OPENSHEET_URL);
-  console.log('Google Sheets:', 'https://docs.google.com/spreadsheets/d/1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU/edit');
-  
-  alert(
-    `🔍 DEBUG INFO\n\n` +
-    `ID Saat Ini: ${currentMemberId}\n` +
-    `Total Data: ${Object.keys(allMembersData).length} anggota\n` +
-    `Status: ${allMembersData[currentMemberId] ? 'Data ditemukan' : 'Data tidak ditemukan'}\n\n` +
-    `Opensheet URL:\n${CONFIG.OPENSHEET_URL}`
-  );
 }
 
 // =================== EVENT LISTENERS ===================
 document.addEventListener('DOMContentLoaded', initializeApp);
 
-// =================== GLOBAL FUNCTIONS (for debugging) ===================
-window.debug = {
-  reload: loadMemberData,
-  forceRefresh: refreshData,
-  getData: () => allMembersData,
-  getCurrent: () => allMembersData[currentMemberId],
-  openSheets: () => window.open('https://docs.google.com/spreadsheets/d/1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU/edit', '_blank')
+// =================== DEBUG FUNCTIONS ===================
+window.debugData = function() {
+  console.log('=== DEBUG INFO ===');
+  console.log('Current ID:', currentMemberId);
+  console.log('All Data:', allMembersData);
+  console.log('Current Member Data:', allMembersData[currentMemberId]);
+  console.log('Opensheet URL:', CONFIG.OPENSHEET_URL);
+  console.log('Google Sheets:', 'https://docs.google.com/spreadsheets/d/1lWx-Utyl91udeO00NRfED3DydP39z1NXsX7grnzKEgU/edit');
+  
+  // Test Opensheet langsung
+  fetch(CONFIG.OPENSHEET_URL)
+    .then(r => r.json())
+    .then(data => console.log('Opensheet Test Result:', data))
+    .catch(err => console.error('Opensheet Test Error:', err));
 };
 </script>
 </body>
