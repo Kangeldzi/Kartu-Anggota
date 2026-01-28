@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "kartu-anggota.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/kartu-anggota.html"
+    }
+  ]
+}
