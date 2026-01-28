@@ -1,4 +1,4 @@
-// data.js
+// data.js - Fixed version
 const MEMBERS_DATA = [
   {
     "ID": "KOP-001",
@@ -56,26 +56,7 @@ const MEMBERS_DATA = [
     "Total Pinjaman": 0,
     "SHU Estimasi": 120000,
     "Foto": "https://via.placeholder.com/150"
-  },
-  {
-    "ID": "KOP-004",
-    "Nama": "Ahmad Fauzi",
-    "Email": "ahmad@example.com",
-    "Status": "AKTIF",
-    "Posisi": "Bendahara",
-    "Alamat": "Jl. Gajah Mada No. 78, Surabaya",
-    "WhatsApp": "083456789012",
-    "Jenis Kelamin": "Laki-laki",
-    "Agama": "Islam",
-    "NIK": "3456789012345678",
-    "Tanggal Bergabung": "2024-03-10",
-    "Simpanan Pokok": 300000,
-    "Simpanan Wajib": 150000,
-    "Simpanan Sukarela": 200000,
-    "Total Pinjaman": 2500000,
-    "SHU Estimasi": 200000,
-    "Foto": "https://via.placeholder.com/150"
   }
 ];
 
-console.log('data.js loaded with', MEMBERS_DATA.length, 'members');
+console.log('data.js loaded successfully with', MEMBERS_DATA.length, 'members');
