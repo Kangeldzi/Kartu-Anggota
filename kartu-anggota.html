@@ -8,8 +8,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* Semua style CSS yang sama seperti sebelumnya */
-/* ... tetap sama ... */
+/* SALIN SEMUA CSS ANDA DI SINI (TANPA PERUBAHAN) */
+body{
+  margin:0;
+  background:linear-gradient(180deg,#061b12,#020b07);
+  font-family:'Poppins',sans-serif;
+  display:flex;
+  justify-content:center;
+  padding:16px;
+  color:#fff;
+}
+
+.card{
+  width:100%;
+  max-width:390px;
+  background:linear-gradient(160deg,#0f3d28,#062015);
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 0 35px rgba(0,255,160,.35);
+  border:1px solid rgba(0,255,160,.35);
+}
+
+/* ... (SALIN SEMUA CSS LAINNYA TANPA PERUBAHAN) ... */
+
+.status-inactive{
+  background:#ff3d0033 !important;
+  color:#ffa000 !important;
+}
 </style>
 </head>
 
@@ -20,15 +45,6 @@
   <div class="loading" id="loading">
     <div class="spinner"></div>
     <p>Memuat data anggota...</p>
-  </div>
-  
-  <!-- ERROR STATE -->
-  <div class="loading" id="error" style="display:none;">
-    <div style="color:#ff5555;font-size:48px;">⚠️</div>
-    <p>Gagal memuat data</p>
-    <button onclick="loadMemberData()" style="margin-top:15px;padding:8px 16px;background:#00ff9d;border:none;border-radius:8px;color:#000;font-weight:bold;">
-      Coba Lagi
-    </button>
   </div>
   
   <!-- CONTENT (hidden by default) -->
@@ -75,118 +91,18 @@
     </div>
 
     <div class="footer">
-      Data tersinkronisasi dari Google Sheets<br>
+      Data tersinkronisasi dari Dashboard Admin<br>
       © Koperasi Asmara Tani 2026
       <div class="last-update" id="lastUpdate">Terakhir update: -</div>
     </div>
   </div>
 </div>
 
+<!-- 1. PASTIKAN FILE data.js ADA DI FOLDER YANG SAMA -->
+<script src="data.js"></script>
+
+<!-- 2. SCRIPT UTAMA -->
 <script>
-// =================== CONFIGURATION ===================
-const CONFIG = {
-  // URL Google Sheets API (ganti dengan URL deploy Anda)
-  GOOGLE_SHEETS_API: '<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Kartu Digital Anggota</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-/* Semua style CSS yang sama seperti sebelumnya */
-/* ... tetap sama ... */
-</style>
-</head>
-
-<body>
-
-<div class="card" id="cardContent">
-  <!-- LOADING STATE -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p>Memuat data anggota...</p>
-  </div>
-  
-  <!-- ERROR STATE -->
-  <div class="loading" id="error" style="display:none;">
-    <div style="color:#ff5555;font-size:48px;">⚠️</div>
-    <p>Gagal memuat data</p>
-    <button onclick="loadMemberData()" style="margin-top:15px;padding:8px 16px;background:#00ff9d;border:none;border-radius:8px;color:#000;font-weight:bold;">
-      Coba Lagi
-    </button>
-  </div>
-  
-  <!-- CONTENT (hidden by default) -->
-  <div id="content" style="display:none;">
-    <div class="header">
-      <div class="logo-wrap">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg">
-      </div>
-      <h1>KOPERASI ASMARA TANI</h1>
-      <small>Kartu Anggota Digital (Mobile-Only)</small>
-    </div>
-
-    <div class="status">
-      <span id="statusText">AKTIF</span>
-    </div>
-
-    <div class="identity">
-      <h2 id="nama">Kang L</h2>
-      <p id="nia">NIA : KOP-001</p>
-    </div>
-
-    <div class="stats">
-      <div class="stat"><small>Simpanan Pokok</small><b id="pokok">Rp 0</b></div>
-      <div class="stat"><small>Simpanan Wajib</small><b id="wajib">Rp 0</b></div>
-      <div class="stat"><small>Simpanan Sukarela</small><b id="sukarela">Rp 0</b></div>
-    </div>
-
-    <div class="data">
-      <div><span>Alamat</span><b id="alamat">Pamijahan, Bogor</b></div>
-      <div><span>Jenis Kelamin</span><b id="jk">Laki-laki</b></div>
-      <div><span>Agama</span><b id="agama">Islam</b></div>
-      <div><span>NIK</span><b id="nik">3201171212810011</b></div>
-      <div><span>Email</span><b id="email">anggota@email.com</b></div>
-      <div><span>Telepon</span><b id="telepon">085218483129</b></div>
-      <div><span>Tanggal Daftar</span><b id="tglDaftar">18-09-2025</b></div>
-      <div><span>Total Simpanan</span><b id="totalSimpanan">Rp 0</b></div>
-      <div><span>Total Pinjaman</span><b id="totalPinjaman">Rp 0</b></div>
-      <div><span>Estimasi SHU</span><b id="shu">Rp 0</b></div>
-    </div>
-
-    <div class="actions">
-      <button onclick="window.print()">Cetak</button>
-      <button onclick="exportPDF()">Export PDF</button>
-    </div>
-
-    <div class="footer">
-      Data tersinkronisasi dari Google Sheets<br>
-      © Koperasi Asmara Tani 2026
-      <div class="last-update" id="lastUpdate">Terakhir update: -</div>
-    </div>
-  </div>
-</div>
-
-<script>
-// =================== CONFIGURATION ===================
-const CONFIG = {
-  // URL Google Sheets API (ganti dengan URL deploy Anda)
-  GOOGLE_SHEETS_API: 'https://script.google.com/macros/s/AKfycbzRH6A3GmFn11_jboR1p4hBlg5DPEvC6bVQlBJXbZ9myIfDsQSMeCkr8H3yuwUPsazw4g/exec',
-  
-  // Parameter ID dari URL
-  // Contoh: kartu-anggota.html?id=KOP-001
-  URL_PARAM_ID: 'id',
-  
-  // Default ID jika tidak ada parameter
-  DEFAULT_ID: 'KOP-001',
-  
-  // Cache duration in milliseconds (5 minutes)
-  CACHE_DURATION: 5 * 60 * 1000
-};
-
 // =================== HELPER FUNCTIONS ===================
 function formatRupiah(angka) {
   if (!angka && angka !== 0) return 'Rp 0';
@@ -195,10 +111,6 @@ function formatRupiah(angka) {
 
 function formatDate(dateString) {
   if (!dateString) return '-';
-  // Convert from spreadsheet date format
-  if (dateString instanceof Date) {
-    return dateString.toLocaleDateString('id-ID');
-  }
   return dateString;
 }
 
@@ -216,541 +128,124 @@ function getStatusClass(status) {
   return '';
 }
 
-// =================== DATA LOADING ===================
-async function loadMemberData() {
+// =================== LOAD DATA FUNCTION ===================
+function loadMemberData() {
   try {
-    // Show loading, hide error and content
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('error').style.display = 'none';
-    document.getElementById('content').style.display = 'none';
+    // 1. Ambil ID dari URL atau pakai default
+    const memberId = getParameterByName('id') || 'KOP-001';
     
-    // Get member ID from URL or use default
-    const memberId = getParameterByName(CONFIG.URL_PARAM_ID) || CONFIG.DEFAULT_ID;
+    console.log('Mencari anggota dengan ID:', memberId);
+    console.log('Total data tersedia:', MEMBERS_DATA?.length || 0);
     
-    // Check cache first
-    const cached = getCachedData(memberId);
-    if (cached) {
-      updateUI(cached);
-      showContent();
-      return;
-    }
-    
-    // Fetch data from Google Sheets
-    const allMembers = await fetchGoogleSheetsData();
-    
-    // Find member data
-    const memberData = findMemberData(allMembers, memberId);
+    // 2. Cari data anggota
+    const memberData = MEMBERS_DATA.find(m => m.ID === memberId) || MEMBERS_DATA[0];
     
     if (!memberData) {
-      throw new Error(`Data anggota dengan ID ${memberId} tidak ditemukan`);
+      throw new Error('Data anggota tidak ditemukan');
     }
     
-    // Process and cache data
-    const processedData = processMemberData(memberData);
-    cacheData(memberId, processedData);
+    console.log('Data ditemukan:', memberData);
     
-    // Update UI
-    updateUI(processedData);
+    // 3. Update UI
+    updateUI(memberData);
+    
+    // 4. Tampilkan konten
     showContent();
     
   } catch (error) {
     console.error('Error loading data:', error);
-    showError();
-  }
-}
-
-async function fetchGoogleSheetsData() {
-  try {
-    const response = await fetch(CONFIG.GOOGLE_SHEETS_API);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-    
-  } catch (error) {
-    console.error('Error fetching from Google Sheets:', error);
-    
-    // Fallback: Try CORS proxy if needed
-    try {
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(CONFIG.GOOGLE_SHEETS_API)}`;
-      const response = await fetch(proxyUrl);
-      const data = await response.json();
-      return data;
-    } catch (proxyError) {
-      throw new Error('Gagal menghubungi server data');
+    // Fallback ke data pertama jika error
+    if (MEMBERS_DATA && MEMBERS_DATA.length > 0) {
+      updateUI(MEMBERS_DATA[0]);
+      showContent();
+    } else {
+      document.getElementById('loading').innerHTML = `
+        <div style="color:#ff5555;font-size:48px;">⚠️</div>
+        <p>Data tidak tersedia</p>
+        <p style="font-size:12px;">Pastikan file data.js sudah ada</p>
+      `;
     }
   }
 }
 
-function findMemberData(allMembers, memberId) {
-  if (!allMembers || !Array.isArray(allMembers)) return null;
-  
-  // Try to find by ID column
-  return allMembers.find(member => 
-    member.ID === memberId || 
-    member.NIK === memberId ||
-    (member.Email && member.Email.toLowerCase().includes(memberId.toLowerCase()))
-  );
-}
-
-function processMemberData(rawData) {
-  // Calculate totals
-  const pokok = parseFloat(rawData['Simpanan Pokok']) || 0;
-  const wajib = parseFloat(rawData['Simpanan Wajib']) || 0;
-  const sukarela = parseFloat(rawData['Simpanan Sukarela']) || 0;
-  const totalSimpanan = pokok + wajib + sukarela;
-  
-  return {
-    id: rawData.ID || '-',
-    nama: rawData.Nama || '-',
-    email: rawData.Email || '-',
-    status: rawData.Status || 'AKTIF',
-    posisi: rawData.Posisi || '-',
-    alamat: rawData.Alamat || '-',
-    telepon: rawData.WhatsApp || rawData['No Telepon'] || '-',
-    jk: rawData['Jenis Kelamin'] || '-',
-    agama: rawData.Agama || '-',
-    nik: rawData.NIK || '-',
-    tgl_daftar: rawData['Tanggal Bergabung'] || '-',
-    simpanan_pokok: pokok,
-    simpanan_wajib: wajib,
-    simpanan_sukarela: sukarela,
-    total_simpanan: totalSimpanan,
-    total_pinjaman: parseFloat(rawData['Total Pinjaman']) || 0,
-    shu: parseFloat(rawData['SHU Estimasi']) || 0,
-    foto: rawData.Foto || '',
-    last_update: new Date().toLocaleString('id-ID')
-  };
-}
-
-// =================== CACHE FUNCTIONS ===================
-function cacheData(memberId, data) {
-  const cache = {
-    data: data,
-    timestamp: Date.now()
-  };
-  localStorage.setItem(`cache_${memberId}`, JSON.stringify(cache));
-}
-
-function getCachedData(memberId) {
-  const cached = localStorage.getItem(`cache_${memberId}`);
-  
-  if (!cached) return null;
-  
-  const { data, timestamp } = JSON.parse(cached);
-  
-  // Check if cache is still valid
-  if (Date.now() - timestamp > CONFIG.CACHE_DURATION) {
-    localStorage.removeItem(`cache_${memberId}`);
-    return null;
-  }
-  
-  return data;
-}
-
-// =================== UI FUNCTIONS ===================
+// =================== UPDATE UI ===================
 function updateUI(data) {
   if (!data) return;
   
   // Update basic info
-  document.getElementById('nama').textContent = data.nama;
-  document.getElementById('nia').textContent = `NIA : ${data.id}`;
+  document.getElementById('nama').textContent = data.Nama || '-';
+  document.getElementById('nia').textContent = `NIA : ${data.ID || '-'}`;
   
   // Update status
   const statusElement = document.getElementById('statusText');
-  statusElement.textContent = data.status;
-  statusElement.className = getStatusClass(data.status);
+  statusElement.textContent = data.Status || 'AKTIF';
+  statusElement.className = getStatusClass(data.Status);
   
   // Update simpanan
-  document.getElementById('pokok').textContent = formatRupiah(data.simpanan_pokok);
-  document.getElementById('wajib').textContent = formatRupiah(data.simpanan_wajib);
-  document.getElementById('sukarela').textContent = formatRupiah(data.simpanan_sukarela);
+  document.getElementById('pokok').textContent = formatRupiah(data['Simpanan Pokok'] || 0);
+  document.getElementById('wajib').textContent = formatRupiah(data['Simpanan Wajib'] || 0);
+  document.getElementById('sukarela').textContent = formatRupiah(data['Simpanan Sukarela'] || 0);
   
   // Update data pribadi
-  document.getElementById('alamat').textContent = data.alamat;
-  document.getElementById('jk').textContent = data.jk;
-  document.getElementById('agama').textContent = data.agama;
-  document.getElementById('nik').textContent = data.nik;
-  document.getElementById('email').textContent = data.email;
-  document.getElementById('telepon').textContent = data.telepon;
-  document.getElementById('tglDaftar').textContent = formatDate(data.tgl_daftar);
+  document.getElementById('alamat').textContent = data.Alamat || '-';
+  document.getElementById('jk').textContent = data['Jenis Kelamin'] || '-';
+  document.getElementById('agama').textContent = data.Agama || '-';
+  document.getElementById('nik').textContent = data.NIK || '-';
+  document.getElementById('email').textContent = data.Email || '-';
+  document.getElementById('telepon').textContent = data.WhatsApp || '-';
+  document.getElementById('tglDaftar').textContent = formatDate(data['Tanggal Bergabung']);
   
-  // Update keuangan
-  document.getElementById('totalSimpanan').textContent = formatRupiah(data.total_simpanan);
-  document.getElementById('totalPinjaman').textContent = formatRupiah(data.total_pinjaman);
-  document.getElementById('shu').textContent = formatRupiah(data.shu);
+  // Calculate totals
+  const pokok = parseFloat(data['Simpanan Pokok']) || 0;
+  const wajib = parseFloat(data['Simpanan Wajib']) || 0;
+  const sukarela = parseFloat(data['Simpanan Sukarela']) || 0;
+  const totalSimpanan = pokok + wajib + sukarela;
+  
+  document.getElementById('totalSimpanan').textContent = formatRupiah(totalSimpanan);
+  document.getElementById('totalPinjaman').textContent = formatRupiah(data['Total Pinjaman'] || 0);
+  document.getElementById('shu').textContent = formatRupiah(data['SHU Estimasi'] || 0);
   
   // Update foto jika ada
-  if (data.foto) {
+  if (data.Foto) {
     const logoImg = document.querySelector('.logo-wrap img');
     if (logoImg) {
-      logoImg.src = data.foto;
-      logoImg.alt = `Foto ${data.nama}`;
+      logoImg.src = data.Foto;
+      logoImg.alt = `Foto ${data.Nama}`;
     }
   }
   
   // Update timestamp
   document.getElementById('lastUpdate').textContent = 
-    `Terakhir update: ${data.last_update}`;
+    `Terakhir update: ${new Date().toLocaleString('id-ID')}`;
 }
 
 function showContent() {
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display = 'none';
   document.getElementById('content').style.display = 'block';
-}
-
-function showError() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display = 'block';
-  document.getElementById('content').style.display = 'none';
 }
 
 // =================== EXPORT FUNCTION ===================
 function exportPDF() {
-  // For now, use browser print as PDF
+  // Untuk sementara, gunakan print browser
   window.print();
-  
-  // Future implementation could use jsPDF
-  // alert('Fitur Export PDF akan segera hadir');
 }
 
-// =================== AUTO REFRESH ===================
-// Auto refresh data every 5 minutes
-setInterval(loadMemberData, CONFIG.CACHE_DURATION);
-
 // =================== INITIAL LOAD ===================
-document.addEventListener('DOMContentLoaded', loadMemberData);
-
-// =================== URL PARAMETER CHANGE ===================
-// Reload data if URL parameter changes
-let currentUrl = window.location.href;
-setInterval(() => {
-  if (window.location.href !== currentUrl) {
-    currentUrl = window.location.href;
-    loadMemberData();
-  }
-}, 1000);
-
-// =================== MANUAL REFRESH ===================
-// Add refresh button to header
 document.addEventListener('DOMContentLoaded', function() {
-  const header = document.querySelector('.header');
-  if (header) {
-    const refreshBtn = document.createElement('button');
-    refreshBtn.innerHTML = '🔄';
-    refreshBtn.style.cssText = `
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,255,160,0.2);
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      color: #00ff9d;
-      cursor: pointer;
-      font-size: 14px;
-    `;
-    refreshBtn.title = 'Refresh Data';
-    refreshBtn.onclick = loadMemberData;
-    header.style.position = 'relative';
-    header.appendChild(refreshBtn);
-  }
+  console.log('DOM Loaded, starting data load...');
+  loadMemberData();
 });
-</script>
 
-</body>
-</html>',
-  
-  // Parameter ID dari URL
-  // Contoh: kartu-anggota.html?id=KOP-001
-  URL_PARAM_ID: 'id',
-  
-  // Default ID jika tidak ada parameter
-  DEFAULT_ID: 'KOP-001',
-  
-  // Cache duration in milliseconds (5 minutes)
-  CACHE_DURATION: 5 * 60 * 1000
+// =================== DEBUG FUNCTIONS ===================
+// Untuk testing di console browser
+window.showAllData = function() {
+  console.log('All Members Data:', MEMBERS_DATA);
 };
 
-// =================== HELPER FUNCTIONS ===================
-function formatRupiah(angka) {
-  if (!angka && angka !== 0) return 'Rp 0';
-  return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  // Convert from spreadsheet date format
-  if (dateString instanceof Date) {
-    return dateString.toLocaleDateString('id-ID');
-  }
-  return dateString;
-}
-
-function getParameterByName(name) {
-  const url = new URL(window.location.href);
-  return url.searchParams.get(name);
-}
-
-function getStatusClass(status) {
-  if (!status) return '';
-  const statusLower = status.toLowerCase();
-  if (statusLower.includes('tidak') || statusLower.includes('non') || statusLower === 'inactive') {
-    return 'status-inactive';
-  }
-  return '';
-}
-
-// =================== DATA LOADING ===================
-async function loadMemberData() {
-  try {
-    // Show loading, hide error and content
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('error').style.display = 'none';
-    document.getElementById('content').style.display = 'none';
-    
-    // Get member ID from URL or use default
-    const memberId = getParameterByName(CONFIG.URL_PARAM_ID) || CONFIG.DEFAULT_ID;
-    
-    // Check cache first
-    const cached = getCachedData(memberId);
-    if (cached) {
-      updateUI(cached);
-      showContent();
-      return;
-    }
-    
-    // Fetch data from Google Sheets
-    const allMembers = await fetchGoogleSheetsData();
-    
-    // Find member data
-    const memberData = findMemberData(allMembers, memberId);
-    
-    if (!memberData) {
-      throw new Error(`Data anggota dengan ID ${memberId} tidak ditemukan`);
-    }
-    
-    // Process and cache data
-    const processedData = processMemberData(memberData);
-    cacheData(memberId, processedData);
-    
-    // Update UI
-    updateUI(processedData);
-    showContent();
-    
-  } catch (error) {
-    console.error('Error loading data:', error);
-    showError();
-  }
-}
-
-async function fetchGoogleSheetsData() {
-  try {
-    const response = await fetch(CONFIG.GOOGLE_SHEETS_API);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-    
-  } catch (error) {
-    console.error('Error fetching from Google Sheets:', error);
-    
-    // Fallback: Try CORS proxy if needed
-    try {
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(CONFIG.GOOGLE_SHEETS_API)}`;
-      const response = await fetch(proxyUrl);
-      const data = await response.json();
-      return data;
-    } catch (proxyError) {
-      throw new Error('Gagal menghubungi server data');
-    }
-  }
-}
-
-function findMemberData(allMembers, memberId) {
-  if (!allMembers || !Array.isArray(allMembers)) return null;
-  
-  // Try to find by ID column
-  return allMembers.find(member => 
-    member.ID === memberId || 
-    member.NIK === memberId ||
-    (member.Email && member.Email.toLowerCase().includes(memberId.toLowerCase()))
-  );
-}
-
-function processMemberData(rawData) {
-  // Calculate totals
-  const pokok = parseFloat(rawData['Simpanan Pokok']) || 0;
-  const wajib = parseFloat(rawData['Simpanan Wajib']) || 0;
-  const sukarela = parseFloat(rawData['Simpanan Sukarela']) || 0;
-  const totalSimpanan = pokok + wajib + sukarela;
-  
-  return {
-    id: rawData.ID || '-',
-    nama: rawData.Nama || '-',
-    email: rawData.Email || '-',
-    status: rawData.Status || 'AKTIF',
-    posisi: rawData.Posisi || '-',
-    alamat: rawData.Alamat || '-',
-    telepon: rawData.WhatsApp || rawData['No Telepon'] || '-',
-    jk: rawData['Jenis Kelamin'] || '-',
-    agama: rawData.Agama || '-',
-    nik: rawData.NIK || '-',
-    tgl_daftar: rawData['Tanggal Bergabung'] || '-',
-    simpanan_pokok: pokok,
-    simpanan_wajib: wajib,
-    simpanan_sukarela: sukarela,
-    total_simpanan: totalSimpanan,
-    total_pinjaman: parseFloat(rawData['Total Pinjaman']) || 0,
-    shu: parseFloat(rawData['SHU Estimasi']) || 0,
-    foto: rawData.Foto || '',
-    last_update: new Date().toLocaleString('id-ID')
-  };
-}
-
-// =================== CACHE FUNCTIONS ===================
-function cacheData(memberId, data) {
-  const cache = {
-    data: data,
-    timestamp: Date.now()
-  };
-  localStorage.setItem(`cache_${memberId}`, JSON.stringify(cache));
-}
-
-function getCachedData(memberId) {
-  const cached = localStorage.getItem(`cache_${memberId}`);
-  
-  if (!cached) return null;
-  
-  const { data, timestamp } = JSON.parse(cached);
-  
-  // Check if cache is still valid
-  if (Date.now() - timestamp > CONFIG.CACHE_DURATION) {
-    localStorage.removeItem(`cache_${memberId}`);
-    return null;
-  }
-  
-  return data;
-}
-
-// =================== UI FUNCTIONS ===================
-function updateUI(data) {
-  if (!data) return;
-  
-  // Update basic info
-  document.getElementById('nama').textContent = data.nama;
-  document.getElementById('nia').textContent = `NIA : ${data.id}`;
-  
-  // Update status
-  const statusElement = document.getElementById('statusText');
-  statusElement.textContent = data.status;
-  statusElement.className = getStatusClass(data.status);
-  
-  // Update simpanan
-  document.getElementById('pokok').textContent = formatRupiah(data.simpanan_pokok);
-  document.getElementById('wajib').textContent = formatRupiah(data.simpanan_wajib);
-  document.getElementById('sukarela').textContent = formatRupiah(data.simpanan_sukarela);
-  
-  // Update data pribadi
-  document.getElementById('alamat').textContent = data.alamat;
-  document.getElementById('jk').textContent = data.jk;
-  document.getElementById('agama').textContent = data.agama;
-  document.getElementById('nik').textContent = data.nik;
-  document.getElementById('email').textContent = data.email;
-  document.getElementById('telepon').textContent = data.telepon;
-  document.getElementById('tglDaftar').textContent = formatDate(data.tgl_daftar);
-  
-  // Update keuangan
-  document.getElementById('totalSimpanan').textContent = formatRupiah(data.total_simpanan);
-  document.getElementById('totalPinjaman').textContent = formatRupiah(data.total_pinjaman);
-  document.getElementById('shu').textContent = formatRupiah(data.shu);
-  
-  // Update foto jika ada
-  if (data.foto) {
-    const logoImg = document.querySelector('.logo-wrap img');
-    if (logoImg) {
-      logoImg.src = data.foto;
-      logoImg.alt = `Foto ${data.nama}`;
-    }
-  }
-  
-  // Update timestamp
-  document.getElementById('lastUpdate').textContent = 
-    `Terakhir update: ${data.last_update}`;
-}
-
-function showContent() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display = 'none';
-  document.getElementById('content').style.display = 'block';
-}
-
-function showError() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display = 'block';
-  document.getElementById('content').style.display = 'none';
-}
-
-// =================== EXPORT FUNCTION ===================
-function exportPDF() {
-  // For now, use browser print as PDF
-  window.print();
-  
-  // Future implementation could use jsPDF
-  // alert('Fitur Export PDF akan segera hadir');
-}
-
-// =================== AUTO REFRESH ===================
-// Auto refresh data every 5 minutes
-setInterval(loadMemberData, CONFIG.CACHE_DURATION);
-
-// =================== INITIAL LOAD ===================
-document.addEventListener('DOMContentLoaded', loadMemberData);
-
-// =================== URL PARAMETER CHANGE ===================
-// Reload data if URL parameter changes
-let currentUrl = window.location.href;
-setInterval(() => {
-  if (window.location.href !== currentUrl) {
-    currentUrl = window.location.href;
-    loadMemberData();
-  }
-}, 1000);
-
-// =================== MANUAL REFRESH ===================
-// Add refresh button to header
-document.addEventListener('DOMContentLoaded', function() {
-  const header = document.querySelector('.header');
-  if (header) {
-    const refreshBtn = document.createElement('button');
-    refreshBtn.innerHTML = '🔄';
-    refreshBtn.style.cssText = `
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,255,160,0.2);
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      color: #00ff9d;
-      cursor: pointer;
-      font-size: 14px;
-    `;
-    refreshBtn.title = 'Refresh Data';
-    refreshBtn.onclick = loadMemberData;
-    header.style.position = 'relative';
-    header.appendChild(refreshBtn);
-  }
-});
+window.switchMember = function(id) {
+  window.location.search = `?id=${id}`;
+  loadMemberData();
+};
 </script>
 
 </body>
