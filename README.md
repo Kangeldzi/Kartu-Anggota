@@ -1,16 +1,22 @@
-# Kartu Anggota Koperasi Digital
+# Kartu Digital Anggota Koperasi
 
-Sistem kartu anggota koperasi berbasis QR Code dengan tampilan digital modern.
+Sistem kartu digital anggota dengan integrasi Google Sheets untuk Koperasi Asmara Tani.
 
-## 📱 Fitur Utama
+## Fitur
+- ✅ Kartu digital per anggota
+- ✅ Integrasi dengan Google Sheets
+- ✅ QR Code Hybrid generator
+- ✅ Responsive design
+- ✅ Auto-sync data
 
-- **Tampilan Responsif** - Optimal di mobile & desktop
-- **QR Code Digital** - Akses cepat data anggota
-- **Data Real-time** - Update otomatis dari database
-- **Multiple Anggota** - Satu template untuk semua
-- **Offline Support** - Tetap bekerja tanpa internet
-- **Print Ready** - Cetak kartu fisik dengan mudah
+## Cara Menggunakan
+1. Akses kartu anggota: `https://[vercel-url]/index.html?id=KOP-001`
+2. Ganti `KOP-001` dengan ID anggota yang diinginkan
 
-## 🚀 Cara Menggunakan
+## Teknologi
+- HTML, CSS, JavaScript
+- Google Apps Script API
+- QR Code generator
 
-### 1. Akses Kartu Anggota
+## Deployment
+Deployed via Vercel - Update otomatis dari GitHub
