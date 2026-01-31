@@ -271,15 +271,14 @@ body{
 // =================== CONFIGURATION ===================
 const CONFIG = {
   // URL Web Apps Script Anda
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxlN6lPvbkZs-QNFLqqqEoM5hw4Xn6QF5ZNyuHnNYnmAHVO5ILG5ebcAKQu0_8U7c4vig/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxqgUBLTdfQCpYsO-EeAjJn7kEBJlRK0m_O-PCkqCs2W9unK5nYoNp7W5FaK_8NOZ8hKQ/exec',
   
   // Kolom mapping
   COLUMN_MAPPING: {
-    foto: 'Foto',
     id: 'ID/NIA',
     posisi: 'Posisi',
-    nama: 'Nama_Lengkap',
-    alamat: 'Alamat_Lengkap',
+    namaLengkap: 'Nama_Lengkap',
+    alamatLengkap: 'Alamat_Lengkap',
     jenisKelamin: 'Jenis_Kelamin',
     email: 'Email',
     whatsapp: 'WhatsApp',
@@ -293,30 +292,31 @@ const CONFIG = {
     totalSimpanan: 'Total_Simpanan',
     totalPinjaman: 'Total_Pinjaman',
     shuEstimasi: 'SHU_Estimasi',
-    lastUpdate: 'lastUpdated'
+    foto: 'Foto',
+    lastupdated: 'lastupdated'
   }
 };
 
 // DATA DEMO (jika ID tidak ditemukan)
 const DEMO_DATA = {
-  "Foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg",
-  "ID/NIA": "KOP-001",
-  "Posisi": "Ketua",
+  "ID/NIA": "NIA-001",
+  "Posisi": "Anggota",
   "Nama_Lengkap": "Kang L",
   "Alamat_Lengkap": "Pamijahan, Bogor",
   "Jenis_Kelamin": "Laki-laki",
-  "Email": "demo@email.com",
-  "WhatsApp": "081234567890",
-  "NIK": "3201171212810001",
+  "Email": "siliwangi4212@email.com",
+  "WhatsApp": "085218483129",
+  "NIK": "3201171212810011",
   "Agama": "Islam",
   "Status": "Aktif",
-  "Tanggal_Bergabung": "2025-01-15",
+  "Tanggal_Bergabung": "2020-09-18",
   "Simpanan_Pokok": 200000,
-  "Simpanan_Wajib": 50000,
-  "Simpanan_Sukarela": 100000,
-  "Total_Simpanan": 350000,
+  "Simpanan_Wajib": 0,
+  "Simpanan_Sukarela": 0,
+  "Total_Simpanan": 0,
   "Total_Pinjaman": 0,
-  "SHU_Estimasi": 50000,
+  "SHU_Estimasi": 44000,
+  "Foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg",
   "lastUpdated": new Date().toISOString()
 };
 
@@ -360,7 +360,7 @@ function getUrlParameter(name) {
 async function loadMemberData() {
   try {
     // 1. Ambil ID dari URL parameter
-    const memberId = getUrlParameter('id') || 'KOP-001';
+    const memberId = getUrlParameter('id') || 'NIA-001';
     console.log('Mencari anggota dengan ID:', memberId);
     
     // 2. Ambil semua data dari Google Sheets
@@ -401,7 +401,7 @@ async function loadMemberData() {
     console.error('Error mengambil data:', error);
     
     // Fallback ke data demo
-    const memberId = getUrlParameter('id') || 'KOP-001';
+    const memberId = getUrlParameter('id') || 'NIA-001';
     displayMemberCard({ ...DEMO_DATA, "ID/NIA": memberId }, memberId);
   }
 }
@@ -530,7 +530,7 @@ function generateQRCode(memberId) {
 
 // =================== SHARE FUNCTION ===================
 function shareCard() {
-  const memberId = getUrlParameter('id') || 'KOP-001';
+  const memberId = getUrlParameter('id') || 'NIA-001';
   const shareUrl = window.location.href;
   const shareText = `Kartu Digital Anggota Koperasi Asmara Tani - ID: ${memberId}`;
   
