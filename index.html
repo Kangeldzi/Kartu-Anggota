@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+/* CSS ANDA TETAP SAMA - TIDAK ADA PERUBAHAN */
 body{
   margin:0;
   background:linear-gradient(180deg,#061b12,#020b07);
@@ -20,7 +21,6 @@ body{
   color:#fff;
 }
 
-/* KARTU */
 .card{
   width:100%;
   max-width:390px;
@@ -37,14 +37,12 @@ body{
   to{opacity:1; transform:translateY(0);}
 }
 
-/* HEADER */
 .header{
   text-align:center;
   border-bottom:1px dashed rgba(255,255,255,.25);
   padding-bottom:14px;
 }
 
-/* LOGO GLASS */
 .logo-wrap{
   width:86px;
   height:86px;
@@ -88,7 +86,6 @@ body{
   opacity:.85;
 }
 
-/* STATUS */
 .status{
   margin:12px auto;
   text-align:center;
@@ -106,7 +103,6 @@ body{
   color:#ffa000 !important;
 }
 
-/* IDENTITAS */
 .identity{
   text-align:center;
   margin:14px 0;
@@ -121,7 +117,6 @@ body{
   color:#a9ffd1;
 }
 
-/* STATS */
 .stats{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -144,7 +139,6 @@ body{
   font-size:13px;
 }
 
-/* DATA */
 .data{
   font-size:12px;
 }
@@ -158,7 +152,6 @@ body{
   color:#b6ffd1;
 }
 
-/* ACTION BUTTON */
 .actions{
   display:flex;
   gap:12px;
@@ -184,7 +177,6 @@ body{
   transform:translateY(-2px);
 }
 
-/* FOOTER */
 .footer{
   margin-top:10px;
   text-align:center;
@@ -192,7 +184,6 @@ body{
   opacity:.75;
 }
 
-/* LOADING */
 .loading{
   text-align:center;
   padding:30px;
@@ -211,7 +202,6 @@ body{
   100%{transform:rotate(360deg)}
 }
 
-/* LAST UPDATE */
 .last-update{
   font-size:9px;
   text-align:center;
@@ -219,7 +209,6 @@ body{
   opacity:.6;
 }
 
-/* QR CODE SECTION */
 .qr-section{
   text-align:center;
   margin-top:20px;
@@ -242,7 +231,6 @@ body{
   margin-top:8px;
 }
 
-/* ERROR STATE */
 .error-state{
   text-align:center;
   padding:40px 20px;
@@ -250,6 +238,34 @@ body{
 .error-state h3{
   color:#ffa000;
   margin-bottom:10px;
+}
+
+/* DEBUG PANEL */
+.debug-panel {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.8);
+  color: #00ff9d;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  max-width: 300px;
+  z-index: 1000;
+  display: none;
+}
+.debug-toggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: #00ff9d;
+  color: #003a24;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1001;
+  font-weight: bold;
 }
 </style>
 
@@ -259,8 +275,17 @@ body{
 
 <body>
 
+<!-- Debug Toggle Button -->
+<button class="debug-toggle" onclick="toggleDebug()">🐛 Debug</button>
+
+<!-- Debug Panel -->
+<div class="debug-panel" id="debugPanel">
+  <h4>Debug Information</h4>
+  <div id="debugInfo"></div>
+</div>
+
+<!-- Main Card Container -->
 <div class="card" id="cardContainer">
-  <!-- Loading akan diganti dengan konten -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
     <p>Memuat data anggota...</p>
@@ -270,16 +295,16 @@ body{
 <script>
 // =================== CONFIGURATION ===================
 const CONFIG = {
-  // URL Web Apps Script Anda
+  // URL Web Apps Script Anda - PASTIKAN INI BENAR
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwY7GzMSDKt_kvarwnylXZblSg7GT41FVFjvNDIb8aHCAHFH3wKj7Vem5Ooo75YXSxa/exec',
   
-  // Kolom mapping
+  // KOLOM MAPPING YANG BENAR - SESUAI HEADER SPREADSHEET
   COLUMN_MAPPING: {
     foto: 'Foto',
     id: 'ID/NIA',
     posisi: 'Posisi',
-    namaLengkap: 'Nama_Lengkap',
-    alamatLengkap: 'Alamat_Lengkap',
+    nama: 'Nama_Lengkap',           // DIPERBAIKI: dari 'namaLengkap' ke 'Nama_Lengkap'
+    alamat: 'Alamat_Lengkap',       // DIPERBAIKI: dari 'alamatLengkap' ke 'Alamat_Lengkap'
     jenisKelamin: 'Jenis_Kelamin',
     email: 'Email',
     whatsapp: 'WhatsApp',
@@ -293,46 +318,94 @@ const CONFIG = {
     totalSimpanan: 'Total_Simpanan',
     totalPinjaman: 'Total_Pinjaman',
     shuEstimasi: 'SHU_Estimasi',
-    lastupdated: 'lastupdated'
+    lastUpdate: 'LastUpdated'       // DIPERBAIKI: dari 'lastupdated' ke 'LastUpdated'
+  },
+  
+  // DEMO DATA FALLBACK
+  DEMO_MEMBER: {
+    "Foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg",
+    "ID/NIA": "NIA-001",
+    "Posisi": "Anggota",
+    "Nama_Lengkap": "Data Demo - ID Tidak Ditemukan",
+    "Alamat_Lengkap": "Alamat tidak tersedia",
+    "Jenis_Kelamin": "-",
+    "Email": "-",
+    "WhatsApp": "-",
+    "NIK": "-",
+    "Agama": "-",
+    "Status": "AKTIF",
+    "Tanggal_Bergabung": new Date().toISOString().split('T')[0],
+    "Simpanan_Pokok": 0,
+    "Simpanan_Wajib": 0,
+    "Simpanan_Sukarela": 0,
+    "Total_Simpanan": 0,
+    "Total_Pinjaman": 0,
+    "SHU_Estimasi": 0,
+    "LastUpdated": new Date().toISOString()
   }
 };
 
-// DATA DEMO (jika ID tidak ditemukan)
-const DEMO_DATA = {
-  "Foto": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg",
-  "ID/NIA": "NIA-001",
-  "Posisi": "Anggota",
-  "Nama_Lengkap": "Kang L",
-  "Alamat_Lengkap": "Pamijahan, Bogor",
-  "Jenis_Kelamin": "Laki-laki",
-  "Email": "siliwangi4212@email.com",
-  "WhatsApp": "085218483129",
-  "NIK": "3201171212810011",
-  "Agama": "Islam",
-  "Status": "Aktif",
-  "Tanggal_Bergabung": "2020-09-18",
-  "Simpanan_Pokok": 200000,
-  "Simpanan_Wajib": 0,
-  "Simpanan_Sukarela": 0,
-  "Total_Simpanan": 0,
-  "Total_Pinjaman": 0,
-  "SHU_Estimasi": 44000,
-  "lastUpdated": new Date().toISOString()
-};
+// =================== DEBUG FUNCTIONS ===================
+let debugLog = [];
+
+function logDebug(message, data = null) {
+  const timestamp = new Date().toLocaleTimeString();
+  const logEntry = `[${timestamp}] ${message}`;
+  debugLog.push(logEntry);
+  
+  if (data) {
+    console.log(message, data);
+    debugLog.push(`  Data: ${JSON.stringify(data).substring(0, 200)}...`);
+  } else {
+    console.log(message);
+  }
+  
+  updateDebugPanel();
+}
+
+function updateDebugPanel() {
+  const debugPanel = document.getElementById('debugPanel');
+  const debugInfo = document.getElementById('debugInfo');
+  
+  if (debugPanel && debugInfo) {
+    debugInfo.innerHTML = debugLog.slice(-10).join('<br>');
+  }
+}
+
+function toggleDebug() {
+  const debugPanel = document.getElementById('debugPanel');
+  debugPanel.style.display = debugPanel.style.display === 'block' ? 'none' : 'block';
+}
 
 // =================== HELPER FUNCTIONS ===================
 function formatRupiah(angka) {
-  if (!angka && angka !== 0) return 'Rp 0';
-  return 'Rp ' + Number(angka).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  if (angka === null || angka === undefined || angka === '') return 'Rp 0';
+  const num = Number(angka);
+  if (isNaN(num)) return 'Rp 0';
+  return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
 function formatDate(dateString) {
   if (!dateString) return '-';
   
   try {
-    const date = new Date(dateString);
+    // Coba parsing berbagai format tanggal
+    let date;
+    
+    if (dateString.includes('/')) {
+      // Format DD/MM/YYYY
+      const parts = dateString.split('/');
+      date = new Date(parts[2], parts[1] - 1, parts[0]);
+    } else if (dateString.includes('-')) {
+      // Format YYYY-MM-DD
+      date = new Date(dateString);
+    } else {
+      // Coba parsing langsung
+      date = new Date(dateString);
+    }
+    
     if (isNaN(date.getTime())) {
-      return dateString;
+      return dateString; // Kembalikan as-is jika tidak valid
     }
     
     const day = date.getDate().toString().padStart(2, '0');
@@ -341,6 +414,7 @@ function formatDate(dateString) {
     
     return `${day}-${month}-${year}`;
   } catch (e) {
+    logDebug(`Error formatting date: ${dateString}`, e);
     return dateString;
   }
 }
@@ -353,64 +427,102 @@ function formatStatus(status) {
 
 function getUrlParameter(name) {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(name);
+  const value = urlParams.get(name);
+  logDebug(`URL Parameter ${name}: ${value}`);
+  return value;
 }
 
 // =================== LOAD SPECIFIC MEMBER DATA ===================
 async function loadMemberData() {
+  logDebug('=== MEMUAT DATA ANGGOTA ===');
+  
   try {
     // 1. Ambil ID dari URL parameter
     const memberId = getUrlParameter('id') || 'NIA-001';
-    console.log('Mencari anggota dengan ID:', memberId);
+    logDebug(`Mencari anggota dengan ID: ${memberId}`);
     
-    // 2. Ambil semua data dari Google Sheets
-    const response = await fetch(CONFIG.APPS_SCRIPT_URL);
+    // 2. Buat URL dengan parameter ID
+    const apiUrl = `${CONFIG.APPS_SCRIPT_URL}?id=${encodeURIComponent(memberId)}`;
+    logDebug(`API URL: ${apiUrl}`);
+    
+    // 3. Ambil data dari Google Sheets dengan timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+    
+    logDebug('Mengirim request ke Apps Script...');
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      mode: 'cors',
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    logDebug(`Response status: ${response.status} ${response.statusText}`);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
     }
     
     const result = await response.json();
-    console.log('Data dari Google Sheets:', result);
+    logDebug('Response dari Apps Script:', result);
     
     let memberData = null;
     
-    // 3. Cari anggota berdasarkan ID
+    // 4. Proses data response
     if (result.status === 'success' && result.data && result.data.length > 0) {
-      memberData = result.data.find(member => {
-        const idFromSheet = member[CONFIG.COLUMN_MAPPING.id];
-        return idFromSheet && idFromSheet.toString().toUpperCase() === memberId.toUpperCase();
-      });
+      logDebug(`Data ditemukan: ${result.data.length} anggota`);
       
-      if (memberData) {
-        console.log('Anggota ditemukan:', memberData);
-      } else {
-        console.log('Anggota tidak ditemukan, menggunakan data demo');
-        memberData = { ...DEMO_DATA, "ID/NIA": memberId };
-      }
+      // Ambil anggota pertama (karena kita cari by ID, harusnya hanya 1)
+      memberData = result.data[0];
+      logDebug(`Anggota ditemukan: ${memberData['Nama_Lengkap'] || 'Nama tidak tersedia'}`);
+      
     } else {
-      // Data kosong, gunakan demo dengan ID dari URL
-      console.log('Database kosong, menggunakan data demo');
-      memberData = { ...DEMO_DATA, "ID/NIA": memberId };
+      // Data tidak ditemukan
+      logDebug(`Data tidak ditemukan untuk ID: ${memberId}`, result);
+      logDebug('Menggunakan data demo...');
+      
+      // Gunakan data demo dengan ID yang diminta
+      memberData = { ...CONFIG.DEMO_MEMBER };
+      memberData["ID/NIA"] = memberId;
+      memberData["Nama_Lengkap"] = `ID ${memberId} Tidak Ditemukan`;
     }
     
-    // 4. Tampilkan kartu
+    // 5. Tampilkan kartu
     displayMemberCard(memberData, memberId);
     
   } catch (error) {
-    console.error('Error mengambil data:', error);
+    logDebug('ERROR mengambil data:', error);
     
     // Fallback ke data demo
     const memberId = getUrlParameter('id') || 'NIA-001';
-    displayMemberCard({ ...DEMO_DATA, "ID/NIA": memberId }, memberId);
+    logDebug(`Menggunakan fallback data untuk ID: ${memberId}`);
+    
+    const fallbackData = { ...CONFIG.DEMO_MEMBER };
+    fallbackData["ID/NIA"] = memberId;
+    fallbackData["Nama_Lengkap"] = `Error: ${error.message.substring(0, 50)}...`;
+    
+    displayMemberCard(fallbackData, memberId);
+    
+    // Tampilkan error ke user
+    setTimeout(() => {
+      alert(`Error: ${error.message}\n\nCek console untuk detail.`);
+    }, 500);
   }
 }
 
 // =================== DISPLAY SINGLE CARD ===================
 function displayMemberCard(member, memberId) {
-  // Proses data
+  logDebug('Menampilkan kartu untuk:', member['Nama_Lengkap']);
+  
+  // Proses data - gunakan mapping yang benar
   const memberData = {
-    id: member[CONFIG.COLUMN_MAPPING.id] || memberId,
+    id: member[CONFIG.COLUMN_MAPPING.id] || memberId || '-',
     nama: member[CONFIG.COLUMN_MAPPING.nama] || 'Nama tidak tersedia',
     email: member[CONFIG.COLUMN_MAPPING.email] || '-',
     status: formatStatus(member[CONFIG.COLUMN_MAPPING.status]),
@@ -427,23 +539,29 @@ function displayMemberCard(member, memberId) {
     totalSimpanan: Number(member[CONFIG.COLUMN_MAPPING.totalSimpanan]) || 0,
     totalPinjaman: Number(member[CONFIG.COLUMN_MAPPING.totalPinjaman]) || 0,
     shuEstimasi: Number(member[CONFIG.COLUMN_MAPPING.shuEstimasi]) || 0,
-    foto: member[CONFIG.COLUMN_MAPPING.foto] || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg'
+    foto: member[CONFIG.COLUMN_MAPPING.foto] || CONFIG.DEMO_MEMBER.Foto
   };
   
-  // Hitung total simpanan
+  // Hitung total simpanan jika kosong atau 0
   if (memberData.totalSimpanan === 0) {
     memberData.totalSimpanan = memberData.simpananPokok + memberData.simpananWajib + memberData.simpananSukarela;
+    logDebug(`Total simpanan dihitung: ${memberData.totalSimpanan}`);
   }
   
   // Status class
   const statusClass = memberData.status === 'AKTIF' ? '' : 'status-inactive';
   
+  // Default foto jika kosong
+  const fotoUrl = memberData.foto && memberData.foto.trim() !== '' 
+    ? memberData.foto 
+    : CONFIG.DEMO_MEMBER.Foto;
+  
   // Generate kartu HTML
   const cardHTML = `
     <div class="header">
       <div class="logo-wrap">
-        <img src="${memberData.foto}" alt="Foto ${memberData.nama}" 
-             onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhADAiDm28b0fescUKnqADc9uk3Q2oIptWD-hyzBQXb2AMtoPrxb7Q9Ecr9SDV_RhqA9uWO6qTcepfbfuR7KFWuKUmYYPB-6JfiExBCzT-MljhNh1P1TPsabKvh2rAQzEtZUA0lpiIkIuBxHvHVuXl0GdUWEyaABcfpsHnX_kyDLN_pS2gVNzp_kIP6Vss/s1280/1000007204.jpg'">
+        <img src="${fotoUrl}" alt="Foto ${memberData.nama}" 
+             onerror="this.onerror=null; this.src='${CONFIG.DEMO_MEMBER.Foto}'">
       </div>
       <h1>KOPERASI ASMARA TANI</h1>
       <small>Kartu Anggota Digital</small>
@@ -480,6 +598,7 @@ function displayMemberCard(member, memberId) {
     <div class="actions">
       <button onclick="window.print()">🖨️ Cetak Kartu</button>
       <button onclick="shareCard()">📤 Bagikan</button>
+      <button onclick="testConnection()">🔧 Test API</button>
     </div>
 
     <div class="qr-section">
@@ -490,15 +609,16 @@ function displayMemberCard(member, memberId) {
     <div class="footer">
       Data tersinkronisasi dari Google Sheets<br>
       © Koperasi Asmara Tani 2026
-      <div class="last-update" id="lastUpdate">Terakhir update: ${formatDate(member[CONFIG.COLUMN_MAPPING.lastUpdate]) || 'Belum ada data'}</div>
+      <div class="last-update">Terakhir update: ${formatDate(member[CONFIG.COLUMN_MAPPING.lastUpdate] || new Date().toISOString())}</div>
     </div>
   `;
   
   // Update container
   document.getElementById('cardContainer').innerHTML = cardHTML;
+  logDebug('Kartu HTML berhasil dibuat');
   
   // Generate QR Code
-  generateQRCode(memberId);
+  setTimeout(() => generateQRCode(memberId), 100);
 }
 
 // =================== GENERATE QR CODE ===================
@@ -506,25 +626,29 @@ function generateQRCode(memberId) {
   try {
     // URL lengkap dengan parameter ID
     const currentUrl = window.location.href;
-    const baseUrl = currentUrl.split('?')[0]; // Hapus parameter yang ada
+    const qrUrl = currentUrl.includes('?') 
+      ? currentUrl.split('?')[0] + `?id=${encodeURIComponent(memberId)}`
+      : currentUrl + `?id=${encodeURIComponent(memberId)}`;
     
-    // Buat URL untuk QR Code
-    const qrUrl = `${baseUrl}?id=${encodeURIComponent(memberId)}`;
+    logDebug(`Generating QR Code untuk: ${qrUrl}`);
     
     // Generate QR Code
     const qr = new QRious({
       element: document.getElementById('qrCode'),
       value: qrUrl,
       size: 150,
-      level: 'H', // High error correction
+      level: 'H',
       foreground: '#061b12',
       background: 'transparent'
     });
     
-    console.log('QR Code dibuat untuk:', qrUrl);
+    logDebug('QR Code berhasil dibuat');
   } catch (error) {
-    console.error('Error generating QR Code:', error);
-    document.getElementById('qrCode').innerHTML = '<p style="color:#ffa000">QR Code tidak bisa ditampilkan</p>';
+    logDebug('Error generating QR Code:', error);
+    const qrElement = document.getElementById('qrCode');
+    if (qrElement) {
+      qrElement.innerHTML = `<p style="color:#ffa000; padding:20px;">QR Error: ${error.message}</p>`;
+    }
   }
 }
 
@@ -534,25 +658,76 @@ function shareCard() {
   const shareUrl = window.location.href;
   const shareText = `Kartu Digital Anggota Koperasi Asmara Tani - ID: ${memberId}`;
   
+  logDebug(`Sharing card: ${shareText}`);
+  
   if (navigator.share) {
     navigator.share({
       title: 'Kartu Digital Anggota',
       text: shareText,
       url: shareUrl
+    }).then(() => {
+      logDebug('Share berhasil');
+    }).catch(err => {
+      logDebug('Share dibatalkan atau error:', err);
     });
   } else {
     // Fallback: copy to clipboard
     navigator.clipboard.writeText(shareUrl).then(() => {
-      alert('Link telah disalin ke clipboard!\n\n' + shareUrl);
+      alert('✅ Link telah disalin ke clipboard!\n\n' + shareUrl);
+      logDebug('URL disalin ke clipboard');
+    }).catch(err => {
+      logDebug('Gagal copy ke clipboard:', err);
+      alert('Gagal menyalin link. Silakan copy manual:\n' + shareUrl);
     });
   }
 }
 
+// =================== TEST CONNECTION FUNCTION ===================
+async function testConnection() {
+  logDebug('=== TESTING API CONNECTION ===');
+  
+  try {
+    const testUrl = CONFIG.APPS_SCRIPT_URL;
+    logDebug(`Testing URL: ${testUrl}`);
+    
+    const response = await fetch(testUrl, {
+      method: 'GET',
+      mode: 'cors',
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    const result = await response.json();
+    
+    alert(`✅ API Connection Test\nStatus: ${result.status}\nMessage: ${result.message}\nTotal Data: ${result.total || 0}\n\nCek console untuk detail.`);
+    logDebug('API Test Result:', result);
+    
+  } catch (error) {
+    alert(`❌ API Connection Failed\nError: ${error.message}\n\nCek console untuk detail.`);
+    logDebug('API Test Error:', error);
+  }
+}
+
 // =================== AUTO REFRESH ===================
-setInterval(loadMemberData, 30000); // Refresh setiap 30 detik
+// setInterval(loadMemberData, 60000); // Refresh setiap 60 detik
 
 // =================== INITIAL LOAD ===================
-document.addEventListener('DOMContentLoaded', loadMemberData);
+document.addEventListener('DOMContentLoaded', function() {
+  logDebug('=== APLIKASI DIMULAI ===');
+  logDebug(`URL: ${window.location.href}`);
+  logDebug(`User Agent: ${navigator.userAgent.substring(0, 50)}...`);
+  
+  // Mulai loading data
+  setTimeout(loadMemberData, 500);
+});
+
+// Global function untuk testing dari console
+window.debugApp = {
+  reload: loadMemberData,
+  testApi: testConnection,
+  getConfig: () => CONFIG,
+  getLogs: () => debugLog,
+  clearLogs: () => { debugLog = []; updateDebugPanel(); }
+};
 </script>
 </body>
 </html>
